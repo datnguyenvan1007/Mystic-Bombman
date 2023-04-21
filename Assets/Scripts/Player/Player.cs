@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
     private int MoveYHash = Animator.StringToHash("MoveY");
     private int StartHash = Animator.StringToHash("Start");
     private int DieHash = Animator.StringToHash("Die");
+    private bool isPressedDetonator = false;
+    private bool isPressedPutBomb = false;
     private void Awake()
     {
         startingPlayerPosition = transform.position;
@@ -32,11 +34,27 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        // moveDPad.x = Input.GetAxisRaw("Horizontal");
-        // moveDPad.y = Input.GetAxisRaw("Vertical");
-        // if (moveDPad.x != 0 && moveDPad.y != 0) {
-        //     moveDPad = Vector2.zero;
-        // }
+        moveDPad.x = Input.GetAxisRaw("Horizontal");
+        moveDPad.y = Input.GetAxisRaw("Vertical");
+        if (moveDPad.x != 0 && moveDPad.y != 0) {
+            moveDPad = Vector2.zero;
+        }
+        if (Input.GetKeyDown(KeyCode.J)) {
+            if (!isPressedPutBomb)
+                PutBomb();
+            isPressedPutBomb = true;
+        }
+        if (Input.GetKeyUp(KeyCode.J)) {
+            isPressedPutBomb = false;
+        }
+        if (Input.GetKeyDown(KeyCode.K)) {
+            if (!isPressedDetonator)
+                Detonate();
+            isPressedDetonator = true;
+        }
+        if (Input.GetKeyUp(KeyCode.K)) {
+            isPressedDetonator = false;
+        }
         Move();
     }
     private void Move()

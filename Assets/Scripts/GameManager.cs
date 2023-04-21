@@ -139,9 +139,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("WallPass", GameData.wallPass);
         PlayerPrefs.SetInt("FlamePass", GameData.flamePass);
         PlayerPrefs.SetInt("BombPass", GameData.bombPass);
-        if (PlayerPrefs.GetInt("Left", 2) > 0) {
-            PlayerPrefs.SetInt("Left", PlayerPrefs.GetInt("Left", 2) - 1);
-        }
+        PlayerPrefs.SetInt("Left", PlayerPrefs.GetInt("Left", 2) - 1);
     }
 
     IEnumerator LoadLevel()
@@ -298,7 +296,7 @@ public class GameManager : MonoBehaviour
         SaveDataWhenLosing();
         yield return new WaitForSeconds(2f);
         isPlayingLevel = false;
-        if (PlayerPrefs.GetInt("Left", 2) > 0)
+        if (PlayerPrefs.GetInt("Left", 2) >= 0)
         {
             PoolBrick.instance.DespawnAll();
             Destroy(enemiesAndItemOfCurrentLevel);
