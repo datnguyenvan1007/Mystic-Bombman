@@ -13,7 +13,7 @@ public class Brick : MonoBehaviour
         anim = GetComponent<Animator>();
     }
     private void OnEnable() {
-        if (GameData.wallPass == 1 || GameData.hackWallPass)
+        if (GameData.wallPass == 1 || GameData.hackWallPass || GameData.wallPassBooster == 1)
         {
             collider.isTrigger = true;
         }
@@ -45,6 +45,6 @@ public class Brick : MonoBehaviour
     }
     private void OnDisable() {
         if (objectCovered != null)
-            objectCovered.GetComponent<Items>().Appear();
+            objectCovered.GetComponent<PowerUp>().Appear();
     }
 }

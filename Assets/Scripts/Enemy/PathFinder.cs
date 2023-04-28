@@ -88,7 +88,7 @@ public class PathFinder : MonoBehaviour
 
         Node startNode = new Node(0, startPosition, targetPosition, null);
         close.Add(startNode);
-        open.AddRange(GetNeighbourNodes(startNode));
+        AddNeighbourNodes(startNode);
 
         while (open.Count > 0)
         {
@@ -119,7 +119,7 @@ public class PathFinder : MonoBehaviour
                 if (!close.Where(x => x.Position == nodeToCheck.Position).Any())
                 {
                     close.Add(nodeToCheck);
-                    open.AddRange(GetNeighbourNodes(nodeToCheck));
+                    AddNeighbourNodes(nodeToCheck);
                 }
             }
         }
@@ -149,14 +149,21 @@ public class PathFinder : MonoBehaviour
 
         return path;
     }
-    static List<Node> GetNeighbourNodes(Node node)
+    static void AddNeighbourNodes(Node node)
     {
         var neighbours = new List<Node>();
         neighbours.Add(new Node(node.G + 1, new Vector2(node.Position.x - 1, node.Position.y), node.TargetPosition, node));
         neighbours.Add(new Node(node.G + 1, new Vector2(node.Position.x + 1, node.Position.y), node.TargetPosition, node));
         neighbours.Add(new Node(node.G + 1, new Vector2(node.Position.x, node.Position.y - 1), node.TargetPosition, node));
         neighbours.Add(new Node(node.G + 1, new Vector2(node.Position.x, node.Position.y + 1), node.TargetPosition, node));
-        return neighbours;
+        foreach (Node n in neighbours) {
+            if (!CheckNodeInClose(n)) {
+                open.Add(n);
+            }
+        }
+    }
+    static bool CheckNodeInClose(Node node) {
+        return close.Where(x => x.Position == node.Position).Any();
     }
 }
 

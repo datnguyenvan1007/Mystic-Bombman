@@ -5,6 +5,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float timeDelay;
     [SerializeField] private FixedJoystick joystick;
+    [SerializeField] private HeroData heroData;
     private Animator animator;
     private Rigidbody2D rig;
     private new Collider2D collider;
@@ -15,9 +16,14 @@ public class Player : MonoBehaviour
     private Vector2 moveDPad = Vector2.zero;
     private Vector2 moveJoystick = Vector2.zero;
     private Vector2 move = Vector2.zero;
+    private Vector2 oldMove = Vector2.zero;
     private bool isQuitBomb = true;
     private int MoveXHash = Animator.StringToHash("MoveX");
     private int MoveYHash = Animator.StringToHash("MoveY");
+    private int GoLeftHash = Animator.StringToHash("GoLeft");
+    private int GoRightHash = Animator.StringToHash("GoRight");
+    private int GoAheadHash = Animator.StringToHash("GoAhead");
+    private int GoBackHash = Animator.StringToHash("GoBack");
     private int StartHash = Animator.StringToHash("Start");
     private int DieHash = Animator.StringToHash("Die");
     private bool isPressedDetonator = false;
@@ -31,38 +37,39 @@ public class Player : MonoBehaviour
         rig = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         collider = GetComponent<Collider2D>();
+        animator.runtimeAnimatorController = heroData.GetHero(PlayerPrefs.GetInt("IdHero", 0)).anim;
     }
     void FixedUpdate()
     {
-        moveDPad.x = Input.GetAxisRaw("Horizontal");
-        moveDPad.y = Input.GetAxisRaw("Vertical");
-        if (moveDPad.x != 0 && moveDPad.y != 0) {
-            moveDPad = Vector2.zero;
-        }
-        if (Input.GetKeyDown(KeyCode.J)) {
-            if (!isPressedPutBomb)
-                PutBomb();
-            isPressedPutBomb = true;
-        }
-        if (Input.GetKeyUp(KeyCode.J)) {
-            isPressedPutBomb = false;
-        }
-        if (Input.GetKeyDown(KeyCode.K)) {
-            if (!isPressedDetonator)
-                Detonate();
-            isPressedDetonator = true;
-        }
-        if (Input.GetKeyUp(KeyCode.K)) {
-            isPressedDetonator = false;
-        }
+        // moveDPad.x = Input.GetAxisRaw("Horizontal");
+        // moveDPad.y = Input.GetAxisRaw("Vertical");
+        // if (moveDPad.x != 0 && moveDPad.y != 0) {
+        //     moveDPad = Vector2.zero;
+        // }
+        // if (Input.GetKeyDown(KeyCode.J)) {
+        //     if (!isPressedPutBomb)
+        //         PutBomb();
+        //     isPressedPutBomb = true;
+        // }
+        // if (Input.GetKeyUp(KeyCode.J)) {
+        //     isPressedPutBomb = false;
+        // }
+        // if (Input.GetKeyDown(KeyCode.K)) {
+        //     if (!isPressedDetonator)
+        //         Detonate();
+        //     isPressedDetonator = true;
+        // }
+        // if (Input.GetKeyUp(KeyCode.K)) {
+        //     isPressedDetonator = false;
+        // }
         Move();
     }
     private void Move()
     {
         if (isDead || isCompleted)
         {
-            animator.SetFloat(MoveYHash, 0f);
-            animator.SetFloat(MoveXHash, 0f);
+            // animator.SetFloat(MoveYHash, 0f);
+            // animator.SetFloat(MoveXHash, 0f);
             return;
         }
         moveJoystick = GetJoystick();
@@ -70,14 +77,16 @@ public class Player : MonoBehaviour
         if (move == Vector2.zero)
         {
             animator.speed = 0;
+            oldMove = Vector2.zero;
             time = timeDelay;
         }
         else
         {
             animator.speed = 1;
+            ManageAnimation();
             time += Time.fixedDeltaTime;
-            animator.SetFloat(MoveXHash, move.x);
-            animator.SetFloat(MoveYHash, move.y);
+            // animator.SetFloat(MoveXHash, move.x);
+            // animator.SetFloat(MoveYHash, move.y);
             if (time >= timeDelay)
             {
                 if (move.x == 0)
@@ -88,6 +97,20 @@ public class Player : MonoBehaviour
             }
         }
         rig.velocity = (moveDPad + moveJoystick) * GameData.speed;
+    }
+    private void ManageAnimation()
+    {
+        if (oldMove == move)
+            return;
+        oldMove = move;
+        if (move == Vector2.up)
+            animator.Play(GoBackHash);
+        if (move == Vector2.down)
+            animator.Play(GoAheadHash);
+        if (move == Vector2.right)
+            animator.Play(GoRightHash);
+        if (move == Vector2.left)
+            animator.Play(GoLeftHash);
     }
     private Vector2 GetJoystick()
     {
@@ -186,12 +209,14 @@ public class Player : MonoBehaviour
             StartCoroutine(GetItems(collision));
             AudioManager.instance.PlayAudioFindTheItem();
         }
-        if (tag == "Enemy" && GameData.mystery == 0 && !GameData.hackImmortal)
+        if (tag == "Enemy" && GameData.mystery == 0 && !GameData.hackImmortal && GameData.mysteryBooster == 0)
         {
             if (isQuitBomb)
                 Die();
         }
-        if (tag == "Explosion" && GameData.flamePass == 0 && GameData.mystery == 0 && !GameData.hackImmortal && !GameData.hackFlamePass)
+        if (tag == "Explosion" && GameData.flamePass == 0 && GameData.mystery == 0
+        && !GameData.hackImmortal && !GameData.hackFlamePass
+        && GameData.flamePassBooster == 0 && GameData.mysteryBooster == 0)
         {
             Die();
         }
@@ -250,7 +275,7 @@ public class Player : MonoBehaviour
                 break;
             case "Mystery":
                 GameData.mystery = 1;
-                yield return new WaitForSeconds(30f);
+                yield return new WaitForSeconds(100f);
                 GameData.mystery = 0;
                 break;
             case "Detonator":

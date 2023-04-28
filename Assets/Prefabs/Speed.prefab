@@ -11,13 +11,13 @@ GameObject:
   - component: {fileID: 9204945701526966355}
   - component: {fileID: 7727585586146570730}
   - component: {fileID: 7083689207742726495}
-  - component: {fileID: 8429652757586191599}
+  - component: {fileID: 8950920384722827273}
   m_Layer: 12
   m_Name: Speed
   m_TagString: Items
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &9204945701526966355
 Transform:
@@ -112,7 +112,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.44642037, y: 0.4332738}
   m_EdgeRadius: 0
---- !u!114 &8429652757586191599
+--- !u!114 &8950920384722827273
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2956557543556248764}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f201b5611a913e84ba8354bf5913829a, type: 3}
+  m_Script: {fileID: 11500000, guid: 44cd485491c605345a03a82d5e27472a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemysPrefab:
@@ -129,8 +129,7 @@ MonoBehaviour:
   - {fileID: 2272818584612048178, guid: 4b90a7909a3a3de4dae35edddb8bd231, type: 3}
   - {fileID: 2272818584612048178, guid: 4b90a7909a3a3de4dae35edddb8bd231, type: 3}
   - {fileID: 2272818584612048178, guid: 4b90a7909a3a3de4dae35edddb8bd231, type: 3}
-  - {fileID: 4618554531479202516, guid: 9966af4fab19dce468883a5ea1f289ee, type: 3}
   - {fileID: 155105565451162079, guid: 1ab3f88bca0e4cd41ab02e69883b0172, type: 3}
-  - {fileID: 4750946573573921248, guid: c37f7642d9c74ae409f2d29fb952a120, type: 3}
-  - {fileID: 6219509067505225329, guid: d72b06623427bae47b054ae69bb6615a, type: 3}
+  - {fileID: 4867067428192016886, guid: 763ab491ad63b9d4eb4c4476492be8ba, type: 3}
+  - {fileID: 4618554531479202516, guid: 9966af4fab19dce468883a5ea1f289ee, type: 3}
   - {fileID: 4618554531479202516, guid: 9966af4fab19dce468883a5ea1f289ee, type: 3}

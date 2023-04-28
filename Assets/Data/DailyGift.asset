@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f75afa75206cd441bc2b30cdbe002be, type: 3}
+  m_Name: DailyGift
+  m_EditorClassIdentifier: 
+  dailyGifts:
+  - id: 1
+    quantity: 1000
+    status: 0
+    claimedTime: 4/28/2023 3:04:31 PM
+  - id: 2
+    quantity: 5000
+    status: 0
+    claimedTime: 4/28/2023 3:12:48 PM
+  - id: 3
+    quantity: 7000
+    status: 0
+    claimedTime: 4/28/2023 3:27:53 PM
+  - id: 4
+    quantity: 10000
+    status: 2
+    claimedTime: 4/28/2023 2:52:20 PM
+  - id: 5
+    quantity: 12000
+    status: 2
+    claimedTime: 
