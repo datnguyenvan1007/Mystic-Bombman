@@ -71,13 +71,13 @@ public class HomeSettings : MonoBehaviour
         }
     }
     public void SelectSound() {
-        if (flipControlOn.activeSelf) {
+        if (soundOn.activeSelf) {
             PlayerPrefs.SetInt("Sound", 0);
             soundOff.SetActive(true);
             soundOn.SetActive(false);
         }
         else {
-            PlayerPrefs.SetInt("FlipControls", 1);
+            PlayerPrefs.SetInt("Sound", 1);
             soundOff.SetActive(false);
             soundOn.SetActive(true);
         }

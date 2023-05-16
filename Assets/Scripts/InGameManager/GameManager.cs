@@ -326,6 +326,7 @@ public class GameManager : MonoBehaviour
     {
         int index;
         item = EnemiesAndItemOfCurrentLevel.transform.GetChild(1).gameObject;
+        item.SetActive(false);
         do
         {
             index = UnityEngine.Random.Range(0, listOfBrickPositions.Count);
@@ -377,6 +378,7 @@ public class GameManager : MonoBehaviour
         Destroy(EnemiesAndItemOfCurrentLevel);
         player.SetActive(false);
         GameData.gold += Reward;
+        PlayerPrefs.SetInt("Gold", GameData.gold);
         StartCoroutine(LoadLevel());
         UIManager.instance.HideReward();
     }
@@ -407,6 +409,8 @@ public class GameManager : MonoBehaviour
         {
             UIManager.instance.SetActivePlayingScene(false);
             UIManager.instance.ActiveLoseScene();
+            if (PlayerPrefs.GetInt("HighScore", 0) < PlayerPrefs.GetInt("Score", 0))
+                PlayerPrefs.SetInt("HighScore", PlayerPrefs.GetInt("Score", 0));
             DeleteAllData();
             Invoke("RedirectHome", 2f);
         }
@@ -418,7 +422,5 @@ public class GameManager : MonoBehaviour
     void OnApplicationQuit()
     {
         RemoveAllBooster();
-        PlayerPrefs.SetInt("Gold", GameData.gold);
-        PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
     }
 }

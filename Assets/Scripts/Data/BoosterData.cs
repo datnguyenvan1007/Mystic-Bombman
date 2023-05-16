@@ -15,7 +15,6 @@ public class Booster {
     public BoosterName name;
     public int price;
     public Sprite avatar;
-    public int quantiy;
 }
 public enum BoosterName {
     Bomb,

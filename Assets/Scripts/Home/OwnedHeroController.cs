@@ -33,27 +33,25 @@ public class OwnedHeroController : MonoBehaviour
         int rowCount = Mathf.CeilToInt(heroData.Count / (grid.constraintCount * 1.0f));
         content.sizeDelta += new Vector2(0, (rowCount) * (grid.cellSize.y + grid.spacing.y));
         int idHeroSkin = PlayerPrefs.GetInt("IdHero", 0);
-        int index = 0;
-        for (int i = 0; i < heroData.Count; i++)
+        string[] purchasedHeroes = PlayerPrefs.GetString("PurchasedHeroes", "0,").Split(",");
+        for (int i = 0; i < purchasedHeroes.Length - 1; i++)
         {
-            if (!heroData.GetHero(i).isPurchased)
-                continue;
+            int index = Convert.ToInt32(purchasedHeroes[i]);
             instancesHero.Add(Instantiate(ownedHeroPrefab, objectContainer.transform));
-            instancesHero[index].transform.GetChild(2).GetChild(0).GetComponent<Text>().text
-            = heroData.GetHero(i).name.ToString();
-            instancesHero[index].transform.GetChild(3).GetComponent<Image>().sprite
-            = heroData.GetHero(i).avatar;
-            instancesHero[index].transform.GetChild(4).GetComponent<Text>().text
-            = heroData.GetHero(i).id.ToString();
-            int x = i;
-            int j = index;
-            instancesHero[index].GetComponent<Button>().onClick.AddListener(delegate { ShowInfo(heroData.GetHero(x), instancesHero[j].transform); });
-            if (idHeroSkin == heroData.GetHero(i).id)
+            instancesHero[i].transform.GetChild(2).GetChild(0).GetComponent<Text>().text
+            = heroData.GetHero(index).name.ToString();
+            instancesHero[i].transform.GetChild(3).GetComponent<Image>().sprite
+            = heroData.GetHero(index).avatar;
+            instancesHero[i].transform.GetChild(4).GetComponent<Text>().text
+            = heroData.GetHero(index).id.ToString();
+            int x = index;
+            int j = i;
+            instancesHero[i].GetComponent<Button>().onClick.AddListener(delegate { ShowInfo(heroData.GetHero(x), instancesHero[j].transform); });
+            if (idHeroSkin == heroData.GetHero(index).id)
             {
-                ShowInfo(heroData.GetHero(i), instancesHero[index].transform);
+                ShowInfo(heroData.GetHero(index), instancesHero[i].transform);
                 ShowSelectedHero();
             }
-            index++;
         }
     }
     private void OnDisable()
@@ -86,7 +84,8 @@ public class OwnedHeroController : MonoBehaviour
         avatarCostumeSkin_PlayerInfo.sprite = heroData.GetHero(Convert.ToInt32(id.text)).avatar;
         ShowSelectedHero();
     }
-    private void ShowSelectedHero() {
+    private void ShowSelectedHero()
+    {
         if (oldSelected != null)
         {
             oldSelected.SetActive(false);

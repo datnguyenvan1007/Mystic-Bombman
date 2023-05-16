@@ -6,7 +6,9 @@ using System;
 public class HeroShopController : ShopBase
 {
     [SerializeField] private HeroData heroData;
-
+    [SerializeField] private Button purchaseButton;
+    [SerializeField] private Text watchAds;
+    [SerializeField] private Image type;
     protected override void Start()
     {
         base.Start();
@@ -43,13 +45,32 @@ public class HeroShopController : ShopBase
         indexOfSelectedObject = index;
         name.text = data.name;
         image.sprite = data.avatar;
+        string[] purchasedHeroes = PlayerPrefs.GetString("PurchasedHeroes", "0,").Split(",");
+        for (int i = 0; i < purchasedHeroes.Length - 1; i++)
+        {
+            if (Convert.ToInt32(purchasedHeroes[i]) == index)
+            {
+                purchaseButton.interactable = false;
+                numberOfPrice.gameObject.SetActive(false);
+                type.gameObject.SetActive(false);
+                watchAds.gameObject.SetActive(true);
+                watchAds.text = "Owned";
+                return;
+            }
+        }
+        purchaseButton.interactable = true;
         if (data.price == 0)
         {
             numberOfPrice.gameObject.SetActive(false);
+            type.gameObject.SetActive(false);
+            watchAds.gameObject.SetActive(true);
+            watchAds.text = "Watch Ads";
         }
         else
         {
             numberOfPrice.gameObject.SetActive(true);
+            type.gameObject.SetActive(true);
+            watchAds.gameObject.SetActive(false);
             numberOfPrice.text = data.price.ToString();
         }
     }
@@ -57,9 +78,12 @@ public class HeroShopController : ShopBase
     {
         if (GameData.gold >= heroData.GetHero(indexOfSelectedObject).price)
         {
-            heroData.GetHero(indexOfSelectedObject).isPurchased = true;
+            if (!PlayerPrefs.HasKey("PurchasedHeroes"))
+                PlayerPrefs.SetString("PurchasedHeroes", "0,");
+            PlayerPrefs.SetString("PurchasedHeroes", PlayerPrefs.GetString("PurchasedHeroes") + indexOfSelectedObject + ",");
             GameData.gold -= heroData.GetHero(indexOfSelectedObject).price;
             gold.text = GameData.gold.ToString();
+            PlayerPrefs.SetInt("Gold", GameData.gold);
         }
         else
         {

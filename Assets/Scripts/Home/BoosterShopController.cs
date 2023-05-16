@@ -52,11 +52,14 @@ public class BoosterShopController : ShopBase
     {
         if (GameData.gold >= boosterData.GetBooster(indexOfSelectedObject).price * quantityOfSelectedObject)
         {
-            boosterData.GetBooster(indexOfSelectedObject).quantiy += quantityOfSelectedObject;
+            PlayerPrefs.SetInt("Owned" + boosterData.GetBooster(indexOfSelectedObject).name + "Booster",
+                PlayerPrefs.GetInt("Owned" + boosterData.GetBooster(indexOfSelectedObject).name + "Booster", 0) + quantityOfSelectedObject);
             GameData.gold -= boosterData.GetBooster(indexOfSelectedObject).price * quantityOfSelectedObject;
             gold.text = GameData.gold.ToString();
+            PlayerPrefs.SetInt("Gold", GameData.gold);
         }
-        else {
+        else
+        {
             confirm.SetActive(false);
             lackOfGold.SetActive(true);
         }

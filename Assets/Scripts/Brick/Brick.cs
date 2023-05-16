@@ -12,12 +12,14 @@ public class Brick : MonoBehaviour
         collider = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
     }
-    private void OnEnable() {
+    private void OnEnable()
+    {
         if (GameData.wallPass == 1 || GameData.hackWallPass || GameData.wallPassBooster == 1)
         {
             collider.isTrigger = true;
         }
-        else {
+        else
+        {
             collider.isTrigger = false;
         }
     }
@@ -30,8 +32,10 @@ public class Brick : MonoBehaviour
     {
         collider.isTrigger = isTrigger;
     }
-    private void OnTriggerEnter2D(Collider2D other) {
-        if (other.tag == "Explosion") {
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "Explosion")
+        {
             Collider2D[] cols = Physics2D.OverlapCircleAll(transform.position, 0.4f, LayerMask.GetMask("EnemyCanThrough"));
             foreach (Collider2D col in cols)
             {
@@ -40,11 +44,16 @@ public class Brick : MonoBehaviour
             Destroy();
         }
     }
-    public void SetObjectCovered(GameObject obj) {
+    public void SetObjectCovered(GameObject obj)
+    {
         objectCovered = obj;
     }
-    private void OnDisable() {
+    private void OnDisable()
+    {
         if (objectCovered != null)
+        {
+            objectCovered.SetActive(true);
             objectCovered.GetComponent<PowerUp>().Appear();
+        }
     }
 }

@@ -17,13 +17,23 @@ MonoBehaviour:
     name: Bomber
     avatar: {fileID: 2089666460, guid: de06274170c342d4f9849fe3e2493393, type: 3}
     currency: 0
-    price: 10
-    isPurchased: 1
+    price: 0
     anim: {fileID: 9100000, guid: d466aa919c1ab014db23d617da685f30, type: 2}
   - id: 1
     name: Balloom
     avatar: {fileID: -309198530, guid: de06274170c342d4f9849fe3e2493393, type: 3}
     currency: 0
     price: 1000
-    isPurchased: 1
     anim: {fileID: 9100000, guid: 189aea0531a064246b002bbb3946aa97, type: 2}
+  - id: 2
+    name: Dragon
+    avatar: {fileID: 914579475, guid: ddb9cd5d6789f904896b892d5e68d834, type: 3}
+    currency: 0
+    price: 2000
+    anim: {fileID: 9100000, guid: 0531482bb972e35429dbfabb4d989937, type: 2}
+  - id: 3
+    name: Dragon
+    avatar: {fileID: 956321739, guid: 8cedce9f686e3574eaf870095568766b, type: 3}
+    currency: 0
+    price: 3000
+    anim: {fileID: 9100000, guid: 061f51e674e22ad46851c4f6f85c5a9d, type: 2}

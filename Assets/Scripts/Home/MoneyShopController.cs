@@ -65,5 +65,6 @@ public class MoneyShopController : ShopBase
     {
         GameData.gold += moneyData.GetMoney(indexOfSelectedObject).quantity;
         gold.text = GameData.gold.ToString();
+        PlayerPrefs.SetInt("Gold", GameData.gold);
     }
 }

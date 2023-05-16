@@ -41,27 +41,29 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        // moveDPad.x = Input.GetAxisRaw("Horizontal");
-        // moveDPad.y = Input.GetAxisRaw("Vertical");
-        // if (moveDPad.x != 0 && moveDPad.y != 0) {
-        //     moveDPad = Vector2.zero;
-        // }
-        // if (Input.GetKeyDown(KeyCode.J)) {
-        //     if (!isPressedPutBomb)
-        //         PutBomb();
-        //     isPressedPutBomb = true;
-        // }
-        // if (Input.GetKeyUp(KeyCode.J)) {
-        //     isPressedPutBomb = false;
-        // }
-        // if (Input.GetKeyDown(KeyCode.K)) {
-        //     if (!isPressedDetonator)
-        //         Detonate();
-        //     isPressedDetonator = true;
-        // }
-        // if (Input.GetKeyUp(KeyCode.K)) {
-        //     isPressedDetonator = false;
-        // }
+        #if UNITY_EDITOR
+            moveDPad.x = Input.GetAxisRaw("Horizontal");
+            moveDPad.y = Input.GetAxisRaw("Vertical");
+            if (moveDPad.x != 0 && moveDPad.y != 0) {
+                moveDPad = Vector2.zero;
+            }
+            if (Input.GetKeyDown(KeyCode.J)) {
+                if (!isPressedPutBomb)
+                    PutBomb();
+                isPressedPutBomb = true;
+            }
+            if (Input.GetKeyUp(KeyCode.J)) {
+                isPressedPutBomb = false;
+            }
+            if (Input.GetKeyDown(KeyCode.K)) {
+                if (!isPressedDetonator)
+                    Detonate();
+                isPressedDetonator = true;
+            }
+            if (Input.GetKeyUp(KeyCode.K)) {
+                isPressedDetonator = false;
+            }
+        #endif
         Move();
     }
     private void Move()
@@ -161,12 +163,13 @@ public class Player : MonoBehaviour
     {
         if (isCompleted || isDead)
             return;
-        DevManager.instance.SetInteractableForButtonNextLevel(false);
         isDead = true;
+        DevManager.instance.SetInteractableForButtonNextLevel(false);
         rig.velocity = Vector2.zero;
         AudioManager.instance.Stop();
         AudioManager.instance.PlayAudioJustDied();
         animator.enabled = true;
+        animator.speed = 1;
         animator.Play(DieHash);
         Invoke("Disable", 1f);
     }
@@ -203,12 +206,6 @@ public class Player : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         string tag = collision.gameObject.tag;
-        if (tag == "Items")
-        {
-            collision.gameObject.SetActive(false);
-            StartCoroutine(GetItems(collision));
-            AudioManager.instance.PlayAudioFindTheItem();
-        }
         if (tag == "Enemy" && GameData.mystery == 0 && !GameData.hackImmortal && GameData.mysteryBooster == 0)
         {
             if (isQuitBomb)
@@ -238,6 +235,12 @@ public class Player : MonoBehaviour
             AudioManager.instance.PlayAudioLevelComplete();
             DevManager.instance.SetInteractableForButtonNextLevel(false);
             StartCoroutine(GameManager.instance.WinLevel());
+        }
+        if (collision.gameObject.tag == "Items")
+        {
+            collision.gameObject.SetActive(false);
+            StartCoroutine(GetItems(collision));
+            AudioManager.instance.PlayAudioFindTheItem();
         }
     }
     private void OnTriggerExit2D(Collider2D collision)

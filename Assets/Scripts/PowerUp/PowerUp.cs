@@ -7,7 +7,7 @@ public class PowerUp : MonoBehaviour
     [SerializeField] private List<GameObject> enemysPrefab;
     private new Collider2D collider;
     int index;
-    private void Start()
+    private void OnEnable()
     {
         collider = GetComponent<Collider2D>();
     }
@@ -42,5 +42,6 @@ public class PowerUp : MonoBehaviour
     }
     public void Hide() {
         collider.enabled = false;
+        gameObject.SetActive(false);
     }
 }

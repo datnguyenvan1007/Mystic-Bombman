@@ -279,6 +279,7 @@ public class UIManager : MonoBehaviour
         Destroy(GameManager.instance.EnemiesAndItemOfCurrentLevel);
         StartCoroutine(GameManager.instance.LoadLevel());
         respawnPopup.SetActive(false);
+        PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
     }
     public void CancleRespawn()
     {
