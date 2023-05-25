@@ -6,47 +6,56 @@ using UnityEngine.SceneManagement;
 
 public class HomeManager : MonoBehaviour
 {
-    [SerializeField] private PlayerInfo playerInfo;
     [SerializeField] private Text highScore;
+    [SerializeField] private GameObject continueButton;
+    public static HomeManager instance;
     private AudioSource audioSource;
-    public static bool IsContinue {get; set;} = true;
     void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
+        instance = this;
         GameData.gold = PlayerPrefs.GetInt("Gold", 0);
         GameData.respawnLeft = PlayerPrefs.GetInt("RespawnLeft", 3);
+
     }
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        highScore.text = PlayerPrefs.GetInt("HighScore", 0).ToString();
+        if (!PlayerPrefs.HasKey("Left"))
+        {
+            continueButton.SetActive(false);
+        }
+        highScore.text = PlayerPrefs.GetInt("HighScore", 0).ToString("#,0").Replace(",", ".");
+        if (PlayerPrefs.GetInt("Sound", 0) == 0)
+        {
+            Mute();
+        }
     }
-    
+
     public void Continue()
     {
-        IsContinue = true;
+        SceneManager.LoadScene(1);
     }
     public void NewGame()
     {
-        IsContinue = false;
-    }
-    public void PlayGame() {
-        if (!IsContinue) {
-            PlayerPrefs.DeleteKey("Score");
-            PlayerPrefs.DeleteKey("NumberOfBombs");
-            PlayerPrefs.DeleteKey("Flame");
-            PlayerPrefs.DeleteKey("WallPass");
-            PlayerPrefs.DeleteKey("BombPass");
-            PlayerPrefs.DeleteKey("FlamePass");
-            PlayerPrefs.DeleteKey("Speed");
-            PlayerPrefs.DeleteKey("Stage");
-            PlayerPrefs.DeleteKey("Left");
-            PlayerPrefs.DeleteKey("Detonator");
-            GameData.respawnLeft = 3;
-        }
-        List<string> names = playerInfo.GetNameSelectedBooster();
-        foreach (string name in names) {
-            PlayerPrefs.SetInt(name + "Booster", 1);
-        }
+        PlayerPrefs.DeleteKey("Score");
+        PlayerPrefs.DeleteKey("NumberOfBombs");
+        PlayerPrefs.DeleteKey("Flame");
+        PlayerPrefs.DeleteKey("WallPass");
+        PlayerPrefs.DeleteKey("BombPass");
+        PlayerPrefs.DeleteKey("FlamePass");
+        PlayerPrefs.DeleteKey("Speed");
+        PlayerPrefs.DeleteKey("Stage");
+        PlayerPrefs.DeleteKey("Left");
+        PlayerPrefs.DeleteKey("Detonator");
+        GameData.respawnLeft = 3;
         SceneManager.LoadScene(1);
+    }
+    public void Mute()
+    {
+        audioSource.mute = true;
+    }
+    public void UnMute()
+    {
+        audioSource.mute = false;
     }
 }

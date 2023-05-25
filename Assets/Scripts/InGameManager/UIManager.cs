@@ -20,35 +20,25 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform uiControlMovement;
     [SerializeField] private RectTransform uiControlBomb;
     [SerializeField] private List<Image> controllers;
-    [SerializeField] private Image soundOn;
-    [SerializeField] private Image soundOff;
-    [SerializeField] private Image dpadSelection;
-    [SerializeField] private Image joystickSelection;
-    [SerializeField] private Image flipOn;
-    [SerializeField] private Image flipOff;
-    [SerializeField] private Image buttonContinue;
-    [SerializeField] private Image buttonMainMenu;
-    [SerializeField] private Image buttonYesOfPromptPanel;
-    [SerializeField] private Image buttonNoOfPromptPanel;
-    [SerializeField] private Sprite[] spritesOfButtonOn;
-    [SerializeField] private Sprite[] spritesOfButtonOff;
-    [SerializeField] private Sprite[] spritesOfDpadSelection;
-    [SerializeField] private Sprite[] spritesOfJoystickSelection;
-    [SerializeField] private Sprite[] spritesOfButtonContinue;
-    [SerializeField] private Sprite[] spritesOfButtonMainMenu;
-    [SerializeField] private Sprite[] spritesOfButtonYes;
-    [SerializeField] private Sprite[] spritesOfButtonNo;
     [SerializeField] private GameObject respawnPopup;
     [SerializeField] private Button respawnByGoldButton;
     [SerializeField] private Button respawnByWatchAdsButton;
     [SerializeField] private Button cancleRespawnButton;
+    [SerializeField] private Text controlsText;
+    [SerializeField] private Text flipControlText;
+    [SerializeField] private Text soundText;
     [SerializeField] private Text respawnFee;
     [SerializeField] private Text respawnLeftText;
     [SerializeField] private Text contentCancleRespawn;
     [SerializeField] private GameObject reward;
     [SerializeField] private Text rewardText;
+    [SerializeField] private GameObject pressUp;
+    [SerializeField] private GameObject pressDown;
+    [SerializeField] private GameObject pressLeft;
+    [SerializeField] private GameObject pressRight;
     private List<Vector2> controllersPosition = new List<Vector2>();
     private float timer = 0f;
+    private Vector2 oldMove = Vector2.zero;
     public static UIManager instance;
     private void Awake()
     {
@@ -58,9 +48,18 @@ public class UIManager : MonoBehaviour
     {
         controllersPosition.Add(uiControlMovement.anchoredPosition);
         controllersPosition.Add(uiControlBomb.anchoredPosition);
-        SelectSound(PlayerPrefs.GetInt("Sound", 1));
-        SelectControllerType(PlayerPrefs.GetInt("ControllerType", 2));
-        SelectFlipControls(PlayerPrefs.GetInt("FlipControls", 0));
+        SetControllerOpacity(PlayerPrefs.GetFloat("ControllerOpacity", 45) / 100);
+        SetControllerType(PlayerPrefs.GetInt("ControllerType", 2));
+        SetActiveButtonDetonator(GameData.detonator);
+        SetFlipControls(PlayerPrefs.GetInt("FlipControls", 0));
+        if (PlayerPrefs.GetInt("Sound", 0) == 1)
+        {
+            soundText.text = "ON";
+        }
+        else
+        {
+            soundText.text = "OFF";
+        }
     }
     private void FixedUpdate()
     {
@@ -69,15 +68,15 @@ public class UIManager : MonoBehaviour
         if (timer >= 0)
         {
             timer -= Time.fixedDeltaTime;
-            contentCancleRespawn.text = "No(" + Mathf.RoundToInt(timer) + ")";
+            contentCancleRespawn.text = "NO(" + Mathf.RoundToInt(timer) + ")";
         }
         if (timer < 0)
         {
-            contentCancleRespawn.text = "No";
+            contentCancleRespawn.text = "NO";
             cancleRespawnButton.interactable = true;
         }
     }
-    public void OnStartingLevel()
+    /*public void OnStartingLevel()
     {
         playingScene.SetActive(false);
         stage.text = "STAGE " + PlayerPrefs.GetInt("Stage", 1);
@@ -88,7 +87,7 @@ public class UIManager : MonoBehaviour
     {
         startingScene.SetActive(false);
         playingScene.SetActive(true);
-    }
+    }*/
     public void SetControllerOpacity(float a)
     {
         foreach (var c in controllers)
@@ -96,17 +95,34 @@ public class UIManager : MonoBehaviour
             c.color = new Color(c.color.r, c.color.g, c.color.b, a);
         }
     }
-    public void SetAcitveControllerType(int type)
+    public void SetControllerType(int type)
     {
         if (type == 1)
         {
             dpadControl.SetActive(false);
             joystickControl.SetActive(true);
+            controlsText.text = "JOYSTICK";
         }
         else
         {
             dpadControl.SetActive(true);
             joystickControl.SetActive(false);
+            controlsText.text = "DPAD";
+        }
+    }
+    public void SetFlipControls(int type)
+    {
+        if (type == 1)
+        {
+            uiControlMovement.anchoredPosition = controllersPosition[1];
+            uiControlBomb.anchoredPosition = controllersPosition[0];
+            flipControlText.text = "ON";
+        }
+        else
+        {
+            uiControlMovement.anchoredPosition = controllersPosition[0];
+            uiControlBomb.anchoredPosition = controllersPosition[1];
+            flipControlText.text = "OFF";
         }
     }
     public void SetActiveButtonDetonator(int type)
@@ -126,7 +142,7 @@ public class UIManager : MonoBehaviour
     public void SetGameScore(int s)
     {
         GameData.score += s;
-        score.text = GameData.score.ToString();
+        score.text = GameData.score.ToString("#,0").Replace(",", ".");
     }
     public void SetTimeGame(int t)
     {
@@ -157,98 +173,91 @@ public class UIManager : MonoBehaviour
     {
         Time.timeScale = 0;
     }
-    public void SelectSound(int mode)
+    public void SelectControllerType()
     {
-        if (mode == 1)
+        if (controlsText.text == "JOYSTICK")
         {
-            soundOn.sprite = spritesOfButtonOn[1];
-            soundOff.sprite = spritesOfButtonOff[0];
-            PlayerPrefs.SetInt("Sound", 1);
-        }
-        else
-        {
-            soundOn.sprite = spritesOfButtonOn[0];
-            soundOff.sprite = spritesOfButtonOff[1];
-            PlayerPrefs.SetInt("Sound", 0);
-        }
-    }
-    public void SelectControllerType(int mode)
-    {
-        if (mode == 1)
-        {
-            dpadSelection.sprite = spritesOfDpadSelection[0];
-            joystickSelection.sprite = spritesOfJoystickSelection[1];
-            PlayerPrefs.SetInt("ControllerType", 1);
-            joystickControl.SetActive(true);
-            dpadControl.SetActive(false);
-        }
-        else
-        {
-            dpadSelection.sprite = spritesOfDpadSelection[1];
-            joystickSelection.sprite = spritesOfJoystickSelection[0];
             PlayerPrefs.SetInt("ControllerType", 2);
-            joystickControl.SetActive(false);
+            controlsText.text = "DPAD";
             dpadControl.SetActive(true);
-        }
-    }
-    public void SelectFlipControls(int mode)
-    {
-        if (mode == 1)
-        {
-            flipOn.sprite = spritesOfButtonOn[1];
-            flipOff.sprite = spritesOfButtonOff[0];
-            PlayerPrefs.SetInt("FlipControls", 1);
-            uiControlMovement.anchoredPosition = controllersPosition[1];
-            uiControlBomb.anchoredPosition = controllersPosition[0];
+            joystickControl.SetActive(false);
         }
         else
         {
-            flipOn.sprite = spritesOfButtonOn[0];
-            flipOff.sprite = spritesOfButtonOff[1];
+            PlayerPrefs.SetInt("ControllerType", 1);
+            controlsText.text = "JOYSTICK";
+            dpadControl.SetActive(false);
+            joystickControl.SetActive(true);
+        }
+    }
+    public void SelectFlipControls()
+    {
+        if (flipControlText.text == "ON")
+        {
             PlayerPrefs.SetInt("FlipControls", 0);
+            flipControlText.text = "OFF";
             uiControlMovement.anchoredPosition = controllersPosition[0];
             uiControlBomb.anchoredPosition = controllersPosition[1];
         }
+        else
+        {
+            PlayerPrefs.SetInt("FlipControls", 1);
+            flipControlText.text = "ON";
+            uiControlMovement.anchoredPosition = controllersPosition[1];
+            uiControlBomb.anchoredPosition = controllersPosition[0];
+        }
     }
-    public void OnPointerDownContinue()
+    public void SelectSound()
     {
-        buttonContinue.sprite = spritesOfButtonContinue[1];
+        if (soundText.text == "ON")
+        {
+            PlayerPrefs.SetInt("Sound", 0);
+            soundText.text = "OFF";
+            AudioManager.instance.Mute();
+        }
+        else
+        {
+            PlayerPrefs.SetInt("Sound", 1);
+            soundText.text = "ON";
+            AudioManager.instance.UnMute();
+        }
     }
-    public void OnPointerUpContinue()
+    public void DisplayHighLightDpad(Vector2 move)
     {
-        buttonContinue.sprite = spritesOfButtonContinue[0];
+        if (oldMove == move)
+            return;
+        if (move == Vector2.down)
+            pressDown.SetActive(true);
+        if (move == Vector2.left)
+            pressLeft.SetActive(true);
+        if (move == Vector2.right)
+            pressRight.SetActive(true);
+        if (move == Vector2.up)
+            pressUp.SetActive(true);
+
+        if (oldMove == Vector2.down)
+            pressDown.SetActive(false);
+        if (oldMove == Vector2.left)
+            pressLeft.SetActive(false);
+        if (oldMove == Vector2.right)
+            pressRight.SetActive(false);
+        if (oldMove == Vector2.up)
+            pressUp.SetActive(false);
+        oldMove = move;
+    }
+    public void Continue()
+    {
         Time.timeScale = 1;
         if (PlayerPrefs.GetInt("Sound", 1) == 1)
             AudioManager.instance.UnMute();
     }
-    public void OnPointerDownMainMenu()
+    public void ReturnHome()
     {
-        buttonMainMenu.sprite = spritesOfButtonMainMenu[1];
-    }
-    public void OnPointerUpMainMenu()
-    {
-        buttonMainMenu.sprite = spritesOfButtonMainMenu[0];
-    }
-    public void OnPointerDownButtonYesOfPromptPanel()
-    {
-        buttonYesOfPromptPanel.sprite = spritesOfButtonYes[1];
-    }
-    public void OnPointerUpButtonYesOfPromptPanel()
-    {
-        buttonYesOfPromptPanel.sprite = spritesOfButtonYes[0];
         Time.timeScale = 1;
-        GameManager.instance.RemoveAllBooster();
+        /*GameManager.instance.RemoveAllBooster();*/
         PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
         PlayerPrefs.SetInt("Gold", GameData.gold);
         SceneManager.LoadScene(0);
-    }
-    public void OnPointerDownButtonNoOfPromptPanel()
-    {
-        buttonNoOfPromptPanel.sprite = spritesOfButtonNo[1];
-    }
-    public void OnPointerUpButtonNoOfPromptPanel()
-    {
-        buttonNoOfPromptPanel.sprite = spritesOfButtonNo[0];
     }
     public bool GetActiveJoystick()
     {
@@ -277,6 +286,7 @@ public class UIManager : MonoBehaviour
         GameManager.instance.IsPlayingLevel = false;
         PoolBrick.instance.DespawnAll();
         Destroy(GameManager.instance.EnemiesAndItemOfCurrentLevel);
+        PlayerPrefs.SetInt("Left", 0);
         StartCoroutine(GameManager.instance.LoadLevel());
         respawnPopup.SetActive(false);
         PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);

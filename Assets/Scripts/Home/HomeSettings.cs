@@ -6,80 +6,83 @@ using UnityEngine.UI;
 public class HomeSettings : MonoBehaviour
 {
     [SerializeField] private Slider controllerOpacitySlider;
-    [SerializeField] private GameObject dpad;
-    [SerializeField] private GameObject joystick;
-    [SerializeField] private GameObject flipControlOn;
-    [SerializeField] private GameObject flipControlOff;
-    [SerializeField] private GameObject soundOn;
-    [SerializeField] private GameObject soundOff;
+    [SerializeField] private Text controlsText;
+    [SerializeField] private Text flipControlText;
+    [SerializeField] private Text soundText;
+    [SerializeField] private Text percentText;
     void Start()
     {
         controllerOpacitySlider.value = PlayerPrefs.GetFloat("ControllerOpacity", 45f);
+        percentText.text = controllerOpacitySlider.value + "%";
         if (PlayerPrefs.GetInt("ControllerType", 2) == 1)
         {
-            joystick.SetActive(true);
-            dpad.SetActive(false);
+            controlsText.text = "JOYSTICK";
         }
         else
         {
-            joystick.SetActive(false);
-            dpad.SetActive(true);
+            controlsText.text = "DPAD";
         }
-        if (PlayerPrefs.GetInt("FlipControls", 0) == 1) {
-            flipControlOn.SetActive(true);
-            flipControlOff.SetActive(false);
+        if (PlayerPrefs.GetInt("FlipControls", 0) == 1)
+        {
+            flipControlText.text = "ON";
         }
-        else {
-            flipControlOff.SetActive(true);
-            flipControlOn.SetActive(false);
+        else
+        {
+            flipControlText.text = "OFF";
         }
-        if (PlayerPrefs.GetInt("Sound", 0) == 1) {
-            soundOn.SetActive(true);
-            soundOff.SetActive(false);
+        if (PlayerPrefs.GetInt("Sound", 0) == 1)
+        {
+            soundText.text = "ON";
         }
-        else {
-            soundOff.SetActive(true);
-            soundOn.SetActive(false);
+        else
+        {
+            soundText.text = "OFF";
         }
     }
     public void ChangeControllerOpacity()
     {
         PlayerPrefs.SetFloat("ControllerOpacity", controllerOpacitySlider.value);
+        percentText.text = controllerOpacitySlider.value + "%";
     }
-    public void SelectControllerType() {
-        if (joystick.activeSelf) {
+    public void SelectControllerType()
+    {
+        if (controlsText.text == "JOYSTICK")
+        {
             PlayerPrefs.SetInt("ControllerType", 2);
-            dpad.SetActive(true);
-            joystick.SetActive(false);
+            controlsText.text = "DPAD";
         }
-        else {
+        else
+        {
             PlayerPrefs.SetInt("ControllerType", 1);
-            dpad.SetActive(false);
-            joystick.SetActive(true);
+            controlsText.text = "JOYSTICK";
         }
     }
-    public void SelectFlipControls() {
-        if (flipControlOn.activeSelf) {
+    public void SelectFlipControls()
+    {
+        if (flipControlText.text == "ON")
+        {
             PlayerPrefs.SetInt("FlipControls", 0);
-            flipControlOff.SetActive(true);
-            flipControlOn.SetActive(false);
+            flipControlText.text = "OFF";
         }
-        else {
+        else
+        {
             PlayerPrefs.SetInt("FlipControls", 1);
-            flipControlOff.SetActive(false);
-            flipControlOn.SetActive(true);
+            flipControlText.text = "ON";
         }
     }
-    public void SelectSound() {
-        if (soundOn.activeSelf) {
+    public void SelectSound()
+    {
+        if (soundText.text == "ON")
+        {
             PlayerPrefs.SetInt("Sound", 0);
-            soundOff.SetActive(true);
-            soundOn.SetActive(false);
+            soundText.text = "OFF";
+            HomeManager.instance.Mute();
         }
-        else {
+        else
+        {
             PlayerPrefs.SetInt("Sound", 1);
-            soundOff.SetActive(false);
-            soundOn.SetActive(true);
+            soundText.text = "ON";
+            HomeManager.instance.UnMute();
         }
     }
 }

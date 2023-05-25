@@ -42,7 +42,7 @@ public class PoolBomb : MonoBehaviour
         GameObject bomb = GetBombFromPool();
         if (bomb == null)
             return false;
-        if (GameData.detonator == 1 || GameData.hackDetonator || GameData.detonatorBooster == 1)
+        if (GameData.detonator == 1 || GameData.hackDetonator)
         {
             waitingToExplode.Add(bomb);
         }

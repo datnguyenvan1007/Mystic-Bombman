@@ -6,157 +6,110 @@ using UnityEngine.UI;
 public class GiftController : MonoBehaviour
 {
     [SerializeField] private GiftData giftData;
-    [SerializeField] private GameObject giftPrefab;
-    [SerializeField] private RectTransform content;
-    [SerializeField] private GameObject confirm;
-    [SerializeField] private Color activeColor;
-    [SerializeField] private Color inactiveColor;
-    private GridLayoutGroup grid;
-    private int minute = 0;
-    private float second = 0f;
-    private Text timerText;
-    private int lastClaimedIndex = -1;
-    private List<GameObject> instances = new List<GameObject>();
+    [SerializeField] private HeroData heroData;
+    [SerializeField] private GameObject heroGift;
+    [SerializeField] private GameObject goldGift;
+    [SerializeField] private GameObject claimed;
+    [SerializeField] private GameObject notification;
+    [SerializeField] private Image avatarHeroGift;
+    [SerializeField] private Text infoGolfGift;
+    [SerializeField] private Text infoHeroGift;
+    [Header("Comfirmation")]
+    [SerializeField] private HorizontalLayoutGroup goldGiftConfirmLayout;
+    [SerializeField] private HorizontalLayoutGroup heroGiftConfirmLayout;
+    [SerializeField] private Text quantityGoldConfirm;
+    [SerializeField] private Image avatarHeroConfirm;
+    [SerializeField] private Text lifeTimeHeroConfirm;
+    int timesReceived;
+    bool canIncreaseTimesReceived = false;
     private void Awake()
     {
-        // PlayerPrefs.SetInt("IndexGiftActive", 0);
-        //             PlayerPrefs.DeleteKey("ClaimedTime");
-        try
+        if (PlayerPrefs.GetInt("IsOpenedApp", 0) == 1)
         {
-            DateTime time = Convert.ToDateTime(PlayerPrefs.GetString("ClaimedTime"));
-            if (DateTime.Now.Year > time.Year)
+            DateTime time;
+            if (PlayerPrefs.HasKey("FirstOpeningInDay"))
             {
-                PlayerPrefs.SetInt("IndexGiftActive", 0);
-                PlayerPrefs.DeleteKey("ClaimedTime");
-            }
-            if (DateTime.Now.Year == time.Year)
-            {
-                if (DateTime.Now.DayOfYear > time.DayOfYear)
-                {
-                    PlayerPrefs.SetInt("IndexGiftActive", 0);
-                    PlayerPrefs.DeleteKey("ClaimedTime");
-                }
-            }
-        }
-        catch (Exception)
-        {
-        }
-        grid = content.GetComponent<GridLayoutGroup>();
-        int rowCount = Mathf.CeilToInt(giftData.Count / (grid.constraintCount * 1.0f));
-        content.sizeDelta += new Vector2(0, (rowCount) * (grid.cellSize.y + grid.spacing.y));
-        int indexGiftActive = PlayerPrefs.GetInt("IndexGiftActive", 0);
-        for (int i = 0; i < giftData.Count; i++)
-        {
-            instances.Add(Instantiate(giftPrefab, content.transform));
-            instances[i].transform.GetChild(0).GetComponent<Text>().text
-            = giftData.GetGift(i).id.ToString();
-            instances[i].transform.GetChild(3).GetComponent<Text>().text
-            = "+" + giftData.GetGift(i).quantity;
-            if (i == indexGiftActive && indexGiftActive >= 0)
-            {
-                instances[i].transform.GetChild(4).GetComponent<Image>().color = activeColor;
-                instances[i].transform.GetChild(4).GetChild(0).GetComponent<Text>().text = GiftStatus.Active.ToString();
+                time = Convert.ToDateTime(PlayerPrefs.GetString("FirstOpeningInDay"));
             }
             else
             {
-                if (i < Mathf.Abs(indexGiftActive))
-                    instances[i].transform.GetChild(4).GetChild(0).GetComponent<Text>().text = GiftStatus.Claimed.ToString();
-                if (i > Mathf.Abs(indexGiftActive))
-                    instances[i].transform.GetChild(4).GetChild(0).GetComponent<Text>().text = GiftStatus.Lock.ToString();
-                instances[i].transform.GetChild(4).GetComponent<Image>().color = inactiveColor;
-                instances[i].transform.GetChild(4).GetComponent<Button>().interactable = false;
+                time = DateTime.Now.AddDays(-1);
             }
-            int index = i;
-            instances[i].transform.GetChild(4).GetComponent<Button>().onClick.AddListener(delegate { Claim(index); });
-        }
-        if (Mathf.Abs(indexGiftActive) > 0)
-            lastClaimedIndex = Mathf.Abs(indexGiftActive) - 1;
-        try
-        {
-            DateTime time = Convert.ToDateTime(PlayerPrefs.GetString("FirstOpening"));
-            if (DateTime.Now.Year == time.Year)
+            if (DateTime.Now.Year > time.Year || DateTime.Now.DayOfYear > time.DayOfYear)
             {
-                if (DateTime.Now.DayOfYear == time.DayOfYear)
-                {
-                    gameObject.SetActive(false);
-                    PlayerPrefs.SetString("FirstOpening", DateTime.Now.ToString());
-                }
-            }
-        }
-        catch (Exception)
-        {
-            PlayerPrefs.SetString("FirstOpening", DateTime.Now.ToString());
-        }
-    }
-    void Claim(int index)
-    {
-        PlayerPrefs.SetString("ClaimedTime", DateTime.Now.ToString());
-        PlayerPrefs.SetInt("IndexGiftActive", -index - 1);
-        instances[index].transform.GetChild(4).GetComponent<Image>().color = inactiveColor;
-        instances[index].transform.GetChild(4).GetComponent<Button>().interactable = false;
-        instances[index].transform.GetChild(4).GetChild(0).GetComponent<Text>().text = GiftStatus.Claimed.ToString();
-        confirm.SetActive(true);
-        confirm.transform.GetChild(1).GetChild(1).GetChild(1).GetComponent<Text>().text = "+" + giftData.GetGift(index).quantity;
-        GameData.gold += giftData.GetGift(index).quantity;
-        PlayerPrefs.SetInt("Gold", GameData.gold);
-        if (index == instances.Count - 1)
-            return;
-        minute = 15;
-        second = 0;
-        timerText = instances[index + 1].transform.GetChild(4).GetChild(0).GetComponent<Text>();
-        lastClaimedIndex = index;
-    }
-    void OnEnable()
-    {
-        // Debug.Log(PlayerPrefs.GetInt("IndexGiftActive", 0));
-        // Debug.Log(PlayerPrefs.GetString("ClaimedTime"));
-        if (lastClaimedIndex == -1 || lastClaimedIndex == giftData.Count - 1 || PlayerPrefs.GetInt("IndexGiftActive", 0) >= 0)
-            return;
-        try
-        {
-            DateTime previousTime = Convert.ToDateTime(PlayerPrefs.GetString("ClaimedTime")).AddMinutes(15);
-            if (previousTime <= DateTime.Now)
-            {
-                ActiveNextGift(lastClaimedIndex);
+                PlayerPrefs.SetInt("ReceivedGift", 0);
+                claimed.SetActive(false);
+                PlayerPrefs.SetString("FirstOpeningInDay", DateTime.Now.ToString());
+                canIncreaseTimesReceived = true;
             }
             else
             {
-                instances[lastClaimedIndex + 1].transform.GetChild(4).GetComponent<Image>().color = inactiveColor;
-                instances[lastClaimedIndex + 1].transform.GetChild(4).GetComponent<Button>().interactable = false;
-                timerText = instances[lastClaimedIndex + 1].transform.GetChild(4).GetChild(0).GetComponent<Text>();
-                TimeSpan substract = previousTime - DateTime.Now;
-                minute = substract.Minutes;
-                second = substract.Seconds;
-                timerText.text = minute + ":" + second;
+                if (PlayerPrefs.GetInt("ReceivedGift", 0) == 1)
+                {
+                    claimed.SetActive(true);
+                    notification.SetActive(false);
+                }
+                gameObject.SetActive(false);
             }
         }
-        catch (Exception)
+        else
         {
-            // Debug.Log(e.Message);
-            minute = 0;
-            second = 0;
+            gameObject.SetActive(false);
+            PlayerPrefs.SetInt("IsOpenedApp", 1);
         }
 
-    }
-    void FixedUpdate()
-    {
-        if (minute <= 0 && second <= 0f)
-            return;
-        if (second <= 0)
+        timesReceived = PlayerPrefs.GetInt("TimesReceived", 0);
+        if (timesReceived != 27)
         {
-            second = 59;
-            minute--;
+            timesReceived %= 7;
+            goldGift.SetActive(true);
+            infoGolfGift.text = "+" + giftData.GetGift(timesReceived).amountOfGolf;
         }
-        timerText.text = minute + ":" + Mathf.RoundToInt(second);
-        second -= Time.fixedDeltaTime;
-        if (minute <= 0 && second <= 0f)
-            ActiveNextGift(lastClaimedIndex);
+        else
+        {
+            heroGift.SetActive(true);
+            infoHeroGift.text = "+" + giftData.GetGift(timesReceived).lifeTime + " DAYS";
+            avatarHeroGift.sprite = heroData.GetHero(giftData.GetGift(timesReceived).idHero).avatar;
+        }
     }
-    void ActiveNextGift(int index)
+    public void Claim()
     {
-        PlayerPrefs.SetInt("IndexGiftActive", Mathf.Abs(PlayerPrefs.GetInt("IndexGiftActive", 0)));
-        instances[index + 1].transform.GetChild(4).GetComponent<Image>().color = activeColor;
-        instances[index + 1].transform.GetChild(4).GetComponent<Button>().interactable = true;
-        instances[index + 1].transform.GetChild(4).GetChild(0).GetComponent<Text>().text = "Active";
+        Canvas.ForceUpdateCanvases();
+        if (giftData.GetGift(timesReceived).isGold)
+        {
+            GameData.gold += giftData.GetGift(timesReceived).amountOfGolf;
+            PlayerPrefs.SetInt("Gold", GameData.gold);
+            quantityGoldConfirm.text = "+" + giftData.GetGift(timesReceived).amountOfGolf;
+            goldGiftConfirmLayout.enabled = false;
+            goldGiftConfirmLayout.enabled = true;
+            goldGiftConfirmLayout.gameObject.SetActive(true);
+        }
+        else
+        {
+            int idHero = giftData.GetGift(timesReceived).idHero;
+            avatarHeroConfirm.sprite = heroData.GetHero(idHero).avatar;
+            lifeTimeHeroConfirm.text = "+" + giftData.GetGift(timesReceived).lifeTime + " DAYS";
+            heroGiftConfirmLayout.enabled = false;
+            heroGiftConfirmLayout.enabled = true;
+            heroGiftConfirmLayout.gameObject.SetActive(true);
+            bool canReceive = true;
+            int[] purchasedHeroes = Array.ConvertAll(PlayerPrefs.GetString("PurchasedHeroes", "0").Split(","), int.Parse);
+            for (int i = 0; i < purchasedHeroes.Length; i++)
+            {
+                if (purchasedHeroes[i] == idHero)
+                {
+                    canReceive = false;
+                }
+            }
+            if (canReceive)
+                PlayerPrefs.SetString("HeroGift", giftData.GetGift(timesReceived).idHero + "/"
+                + DateTime.Now.AddDays(giftData.GetGift(timesReceived).lifeTime));
+        }
+        PlayerPrefs.SetInt("ReceivedGift", 1);
+        claimed.SetActive(true);
+        notification.SetActive(false);
+        if (canIncreaseTimesReceived)
+            PlayerPrefs.SetInt("TimesReceived", PlayerPrefs.GetInt("TimesReceived", 0) == 28 ? 0 : PlayerPrefs.GetInt("TimesReceived", 0) + 1);
+        canIncreaseTimesReceived = false;
     }
 }

@@ -13,23 +13,43 @@ MonoBehaviour:
   m_Name: DailyGift
   m_EditorClassIdentifier: 
   dailyGifts:
+  - id: 0
+    isGold: 1
+    amountOfGolf: 100
+    idHero: 0
+    lifeTime: 0
   - id: 1
-    quantity: 1000
-    status: 0
-    claimedTime: 5/8/2023 3:32:31 PM
+    isGold: 1
+    amountOfGolf: 300
+    idHero: 0
+    lifeTime: 0
   - id: 2
-    quantity: 5000
-    status: 0
-    claimedTime: 5/8/2023 3:47:38 PM
+    isGold: 1
+    amountOfGolf: 500
+    idHero: 0
+    lifeTime: 0
   - id: 3
-    quantity: 7000
-    status: 2
-    claimedTime: 
+    isGold: 1
+    amountOfGolf: 700
+    idHero: 0
+    lifeTime: 0
   - id: 4
-    quantity: 10000
-    status: 2
-    claimedTime: 
+    isGold: 1
+    amountOfGolf: 1000
+    idHero: 0
+    lifeTime: 0
   - id: 5
-    quantity: 12000
-    status: 2
-    claimedTime: 
+    isGold: 1
+    amountOfGolf: 1200
+    idHero: 0
+    lifeTime: 0
+  - id: 6
+    isGold: 1
+    amountOfGolf: 1500
+    idHero: 0
+    lifeTime: 0
+  - id: 7
+    isGold: 0
+    amountOfGolf: 0
+    idHero: 3
+    lifeTime: 10

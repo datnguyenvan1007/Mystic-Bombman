@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float timeDelay;
+    [SerializeField] private float timeDelay2PlaySound;
     [SerializeField] private FixedJoystick joystick;
     [SerializeField] private HeroData heroData;
     private Animator animator;
@@ -16,7 +16,9 @@ public class Player : MonoBehaviour
     private Vector2 moveDPad = Vector2.zero;
     private Vector2 moveJoystick = Vector2.zero;
     private Vector2 move = Vector2.zero;
+    private Vector2 offsetMove = Vector2.zero;
     private Vector2 oldMove = Vector2.zero;
+    private Vector2 direction = Vector2.zero;
     private bool isQuitBomb = true;
     private int MoveXHash = Animator.StringToHash("MoveX");
     private int MoveYHash = Animator.StringToHash("MoveY");
@@ -41,55 +43,56 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        #if UNITY_EDITOR
-            moveDPad.x = Input.GetAxisRaw("Horizontal");
-            moveDPad.y = Input.GetAxisRaw("Vertical");
-            if (moveDPad.x != 0 && moveDPad.y != 0) {
-                moveDPad = Vector2.zero;
-            }
-            if (Input.GetKeyDown(KeyCode.J)) {
-                if (!isPressedPutBomb)
-                    PutBomb();
-                isPressedPutBomb = true;
-            }
-            if (Input.GetKeyUp(KeyCode.J)) {
-                isPressedPutBomb = false;
-            }
-            if (Input.GetKeyDown(KeyCode.K)) {
-                if (!isPressedDetonator)
-                    Detonate();
-                isPressedDetonator = true;
-            }
-            if (Input.GetKeyUp(KeyCode.K)) {
-                isPressedDetonator = false;
-            }
-        #endif
+        // #if UNITY_EDITOR
+        //         moveDPad.x = Input.GetAxisRaw("Horizontal");
+        //         moveDPad.y = Input.GetAxisRaw("Vertical");
+        //         if (moveDPad.x != 0 && moveDPad.y != 0)
+        //         {
+        //             moveDPad = Vector2.zero;
+        //         }
+        //         if (Input.GetKeyDown(KeyCode.J))
+        //         {
+        //             if (!isPressedPutBomb)
+        //                 PutBomb();
+        //             isPressedPutBomb = true;
+        //         }
+        //         if (Input.GetKeyUp(KeyCode.J))
+        //         {
+        //             isPressedPutBomb = false;
+        //         }
+        //         if (Input.GetKeyDown(KeyCode.K))
+        //         {
+        //             if (!isPressedDetonator)
+        //                 Detonate();
+        //             isPressedDetonator = true;
+        //         }
+        //         if (Input.GetKeyUp(KeyCode.K))
+        //         {
+        //             isPressedDetonator = false;
+        //         }
+        // #endif
         Move();
     }
     private void Move()
     {
         if (isDead || isCompleted)
         {
-            // animator.SetFloat(MoveYHash, 0f);
-            // animator.SetFloat(MoveXHash, 0f);
             return;
         }
         moveJoystick = GetJoystick();
         move = moveDPad + moveJoystick;
-        if (move == Vector2.zero)
+        if (move == Vector2.zero && direction == Vector2.zero)
         {
             animator.speed = 0;
             oldMove = Vector2.zero;
-            time = timeDelay;
+            time = timeDelay2PlaySound;
         }
         else
         {
             animator.speed = 1;
             ManageAnimation();
             time += Time.fixedDeltaTime;
-            // animator.SetFloat(MoveXHash, move.x);
-            // animator.SetFloat(MoveYHash, move.y);
-            if (time >= timeDelay)
+            if (time >= timeDelay2PlaySound)
             {
                 if (move.x == 0)
                     AudioManager.instance.PlayAudioUpDown();
@@ -97,6 +100,22 @@ public class Player : MonoBehaviour
                     AudioManager.instance.PlayAudioLeftRight();
                 time = 0f;
             }
+            // if (move != Vector2.zero)
+            // {
+            //     rig.MovePosition((Vector2)transform.position + move * GameData.speed * Time.fixedDeltaTime);
+            //     offsetMove = Vector2.zero;
+            //     direction = move;
+            // }
+            // else
+            // {
+            //     if (transform.position.x % 0.25f != 0f || transform.position.y % 0.25f != 0f)
+            //     {
+            //         offsetMove.x = 0.25f - Mathf.Abs(transform.position.x) % 0.25f;
+            //         offsetMove.y = 0.25f - Mathf.Abs(transform.position.y) % 0.25f;
+            //         rig.MovePosition((Vector2)transform.position + offsetMove * direction);
+            //         direction = Vector2.zero;
+            //     }
+            // }
         }
         rig.velocity = (moveDPad + moveJoystick) * GameData.speed;
     }
@@ -176,7 +195,7 @@ public class Player : MonoBehaviour
     private void Disable()
     {
         gameObject.SetActive(false);
-        GameManager.instance.Lose();
+        GameManager.instance.Die();
         moveDPad = Vector2.zero;
     }
     private void OnEnable()
@@ -189,31 +208,33 @@ public class Player : MonoBehaviour
     public void OnMoveExit()
     {
         moveDPad = Vector2.zero;
+        UIManager.instance.DisplayHighLightDpad(moveDPad);
     }
     public void OnMoveXEnter(int x)
     {
         if (isCompleted || isDead)
             return;
         moveDPad = new Vector2(x, 0);
+        UIManager.instance.DisplayHighLightDpad(moveDPad);
     }
     public void OnMoveYEnter(int y)
     {
         if (isCompleted || isDead)
             return;
         moveDPad = new Vector2(0, y);
+        UIManager.instance.DisplayHighLightDpad(moveDPad);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         string tag = collision.gameObject.tag;
-        if (tag == "Enemy" && GameData.mystery == 0 && !GameData.hackImmortal && GameData.mysteryBooster == 0)
+        if (tag == "Enemy" && GameData.mystery == 0 && !GameData.hackImmortal)
         {
             if (isQuitBomb)
                 Die();
         }
         if (tag == "Explosion" && GameData.flamePass == 0 && GameData.mystery == 0
-        && !GameData.hackImmortal && !GameData.hackFlamePass
-        && GameData.flamePassBooster == 0 && GameData.mysteryBooster == 0)
+        && !GameData.hackImmortal && !GameData.hackFlamePass)
         {
             Die();
         }

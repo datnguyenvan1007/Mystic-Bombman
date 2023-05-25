@@ -13,7 +13,7 @@ public class Bomb : MonoBehaviour
     private void OnEnable()
     {
         isExploded = false;
-        if (GameData.detonator == 0 && !GameData.hackDetonator && GameData.detonatorBooster == 0)
+        if (GameData.detonator == 0 && !GameData.hackDetonator)
         {
             StartCoroutine(DestroyByTime());
         }
@@ -35,7 +35,7 @@ public class Bomb : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            if (GameData.bombPass == 0 && GameData.bombPassBooster == 0 && !GameData.hackBombPass && !isExploded)
+            if (GameData.bombPass == 0 && !GameData.hackBombPass && !isExploded)
                 collider.isTrigger = false;
         }
 

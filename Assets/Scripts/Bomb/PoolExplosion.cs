@@ -43,7 +43,7 @@ public class PoolExplosion : MonoBehaviour
     {
         bool isSmallerRange = false;
         Vector2 pos = trans.position;
-        int flame = GameData.hackFlame + GameData.flameBooster;
+        int flame = GameData.hackFlame;
         int count = flame;
         RaycastHit2D hit = Physics2D.Raycast(pos, direction, count, LayerMask.GetMask("Bomb", "Wall", "Brick"));
         if (hit.collider) {

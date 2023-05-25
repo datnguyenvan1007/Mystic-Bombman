@@ -19,6 +19,7 @@ public class Money
     public int id;
     public string name;
     public Sprite avatar;
-    public int price;
+    public float price;
     public int quantity;
+    public int bonus;
 }

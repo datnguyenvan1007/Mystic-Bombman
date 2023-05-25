@@ -14,7 +14,7 @@ public class Brick : MonoBehaviour
     }
     private void OnEnable()
     {
-        if (GameData.wallPass == 1 || GameData.hackWallPass || GameData.wallPassBooster == 1)
+        if (GameData.wallPass == 1 || GameData.hackWallPass)
         {
             collider.isTrigger = true;
         }

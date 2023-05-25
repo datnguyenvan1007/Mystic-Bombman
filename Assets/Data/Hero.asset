@@ -14,26 +14,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heroes:
   - id: 0
-    name: Bomber
+    name: BOMBER
     avatar: {fileID: 2089666460, guid: de06274170c342d4f9849fe3e2493393, type: 3}
     currency: 0
     price: 0
     anim: {fileID: 9100000, guid: d466aa919c1ab014db23d617da685f30, type: 2}
   - id: 1
-    name: Balloom
-    avatar: {fileID: -309198530, guid: de06274170c342d4f9849fe3e2493393, type: 3}
-    currency: 0
-    price: 1000
-    anim: {fileID: 9100000, guid: 189aea0531a064246b002bbb3946aa97, type: 2}
-  - id: 2
-    name: Dragon
-    avatar: {fileID: 914579475, guid: ddb9cd5d6789f904896b892d5e68d834, type: 3}
-    currency: 0
-    price: 2000
-    anim: {fileID: 9100000, guid: 0531482bb972e35429dbfabb4d989937, type: 2}
-  - id: 3
-    name: Dragon
+    name: WBOMBER
     avatar: {fileID: 956321739, guid: 8cedce9f686e3574eaf870095568766b, type: 3}
     currency: 0
-    price: 3000
+    price: 2000
     anim: {fileID: 9100000, guid: 061f51e674e22ad46851c4f6f85c5a9d, type: 2}
+  - id: 2
+    name: DRAGON
+    avatar: {fileID: 914579475, guid: ddb9cd5d6789f904896b892d5e68d834, type: 3}
+    currency: 0
+    price: 5000
+    anim: {fileID: 9100000, guid: 0531482bb972e35429dbfabb4d989937, type: 2}
+  - id: 3
+    name: PIRATE
+    avatar: {fileID: -652904343, guid: daae3f8c4883bb344b02330c80952e4d, type: 3}
+    currency: 0
+    price: 10000
+    anim: {fileID: 9100000, guid: d999d4a7f3db09149b9aaf9784d4f867, type: 2}
+  - id: 4
+    name: COMBATANT
+    avatar: {fileID: -916379497, guid: 86ce49413a2cab346b11526bb938b92e, type: 3}
+    currency: 0
+    price: 20000
+    anim: {fileID: 9100000, guid: 1a84f85c8dd4c0549b1a82ff05c39c76, type: 2}
+  - id: 5
+    name: ATHLETE
+    avatar: {fileID: 1499954483, guid: dbe5b002129427444a336a164825fbb0, type: 3}
+    currency: 2
+    price: 2.9
+    anim: {fileID: 9100000, guid: 20b6807ec3a2eec4ab5f1f20f35094ab, type: 2}
+  - id: 6
+    name: MARIO
+    avatar: {fileID: 369897265, guid: d0781b2c134e29e46b45d1417c8b8b30, type: 3}
+    currency: 2
+    price: 5.9
+    anim: {fileID: 9100000, guid: 57768cfa1eee3fa4ca3ff57ea0d4b69e, type: 2}

@@ -25,13 +25,13 @@ public static class GameData
     public static bool hackBombPass;
     public static bool hackDetonator;
     public static bool hackImmortal;
-    public static int bombBooster;
+    /*public static int bombBooster;
     public static int flameBooster;
     public static int detonatorBooster;
     public static int bombPassBooster;
     public static int wallPassBooster;
     public static int flamePassBooster;
-    public static int mysteryBooster;
+    public static int mysteryBooster;*/
     public static int respawnLeft;
 }
 public class GameManager : MonoBehaviour
@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject exitWay;
     [SerializeField] private List<GameObject> enemiesAndItemPrefab;
-    public GameObject EnemiesAndItemOfCurrentLevel {get; set;}
+    public GameObject EnemiesAndItemOfCurrentLevel { get; set; }
     private GameObject brickOverExitGate;
     private GameObject item;
     private GameObject brickOverItem;
@@ -49,9 +49,9 @@ public class GameManager : MonoBehaviour
     private List<Vector2> listOfBrickPositions;
     private List<Vector2> listOfPositionsCanFillBrick;
     private List<Vector2> listOfPositionsCanFill;
-    public bool IsPlayingLevel {get; set;} = false;
-    public int Fee {get => 50;}
-    public int Reward {get => 20;}
+    public bool IsPlayingLevel { get; set; } = false;
+    public int Fee { get => 50; }
+    public int Reward { get => 20; }
     private bool isActivedExitGate = false;
     private bool isActiveItem = false;
     private int time = 200;
@@ -76,13 +76,13 @@ public class GameManager : MonoBehaviour
         GameData.bombPass = PlayerPrefs.GetInt("BombPass", 0);
         GameData.detonator = PlayerPrefs.GetInt("Detonator", 0);
         //Booster
-        GameData.bombBooster = PlayerPrefs.GetInt("BombBooster", 0);
+        /*GameData.bombBooster = PlayerPrefs.GetInt("BombBooster", 0);
         GameData.bombPassBooster = PlayerPrefs.GetInt("BombPassBooster", 0);
         GameData.detonatorBooster = PlayerPrefs.GetInt("DetonatorBooster", 0);
         GameData.flameBooster = PlayerPrefs.GetInt("FlameBooster", 0);
         GameData.flamePassBooster = PlayerPrefs.GetInt("FlamePassBooster", 0);
         GameData.mysteryBooster = PlayerPrefs.GetInt("MysteryBooster", 0);
-        GameData.wallPassBooster = PlayerPrefs.GetInt("WallPassBooster", 0);
+        GameData.wallPassBooster = PlayerPrefs.GetInt("WallPassBooster", 0);*/
     }
 
     void SaveData()
@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.DeleteKey("Left");
         PlayerPrefs.DeleteKey("Detonator");
     }
-    public void RemoveAllBooster()
+    /*public void RemoveAllBooster()
     {
         if (GameData.bombBooster != 0)
         {
@@ -162,15 +162,15 @@ public class GameManager : MonoBehaviour
             GameData.mysteryBooster = 0;
             PlayerPrefs.DeleteKey("MysteryBooster");
         }
-    }
-    IEnumerator CancleMysteryBooster()
+    }*/
+    /*IEnumerator CancleMysteryBooster()
     {
         if (GameData.mysteryBooster == 0)
             yield break;
         yield return new WaitForSeconds(100f);
         GameData.mysteryBooster = 0;
         PlayerPrefs.DeleteKey("MysteryBooster");
-    }
+    }*/
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -212,12 +212,8 @@ public class GameManager : MonoBehaviour
     {
         GetValueForGameData();
         GameData.hackBomb = false;
-        for (int i = 1; i <= GameData.numberOfBombs + GameData.bombBooster; i++)
+        for (int i = 1; i <= GameData.numberOfBombs; i++)
             PoolBomb.instance.AddBomb();
-        UIManager.instance.SetControllerOpacity(PlayerPrefs.GetFloat("ControllerOpacity", 45) / 100);
-        UIManager.instance.SetAcitveControllerType(PlayerPrefs.GetInt("ControllerType", 2));
-        UIManager.instance.SetActiveButtonDetonator(GameData.detonator);
-        UIManager.instance.SetActiveButtonDetonator(GameData.detonatorBooster);
         UIManager.instance.SetTimeGame(time);
         UIManager.instance.SetGameScore(0);
         StartCoroutine(LoadLevel());
@@ -257,7 +253,7 @@ public class GameManager : MonoBehaviour
         UIManager.instance.SetActivePlayingScene(true);
         AudioManager.instance.PlayAudioInGame();
 
-        CancleMysteryBooster();
+        /*CancleMysteryBooster();*/
 
         IsPlayingLevel = true;
         timeRemain = 200;
@@ -368,7 +364,7 @@ public class GameManager : MonoBehaviour
     {
         UIManager.instance.ShowReward();
         yield return new WaitForSeconds(2f);
-        RemoveAllBooster();
+        /*RemoveAllBooster();*/
         IsPlayingLevel = false;
         GameData.mystery = 0;
         SaveData();
@@ -382,10 +378,11 @@ public class GameManager : MonoBehaviour
         StartCoroutine(LoadLevel());
         UIManager.instance.HideReward();
     }
-    public void Lose()
+    public void Die()
     {
-        RemoveAllBooster();
-        if (GameData.respawnLeft > 0)
+        /*RemoveAllBooster();*/
+        SaveDataWhenLosing();
+        if (GameData.respawnLeft > 0 && PlayerPrefs.GetInt("Left", 2) < 0)
         {
             UIManager.instance.ShowPopupRespawn();
         }
@@ -394,7 +391,6 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator GoToPreviousLevel()
     {
-        SaveDataWhenLosing();
         yield return new WaitForSeconds(2f);
         IsPlayingLevel = false;
         if (PlayerPrefs.GetInt("Left", 2) >= 0)
@@ -419,8 +415,8 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    void OnApplicationQuit()
+    /*void OnApplicationQuit()
     {
         RemoveAllBooster();
-    }
+    }*/
 }

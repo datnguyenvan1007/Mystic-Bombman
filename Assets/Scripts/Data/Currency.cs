@@ -1,5 +1,6 @@
 public enum Currency
 {
     Gold,
-    Vnd
+    Vnd,
+    Usd
 }
