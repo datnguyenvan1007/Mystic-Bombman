@@ -72,14 +72,14 @@ public class GiftController : MonoBehaviour
             avatarHeroGift.sprite = heroData.GetHero(giftData.GetGift(timesReceived).idHero).avatar;
         }
     }
-    public void Claim()
+    public void Claim(int x = 1)
     {
         Canvas.ForceUpdateCanvases();
         if (giftData.GetGift(timesReceived).isGold)
         {
-            GameData.gold += giftData.GetGift(timesReceived).amountOfGolf;
+            GameData.gold += giftData.GetGift(timesReceived).amountOfGolf * x;
             PlayerPrefs.SetInt("Gold", GameData.gold);
-            quantityGoldConfirm.text = "+" + giftData.GetGift(timesReceived).amountOfGolf;
+            quantityGoldConfirm.text = "+" + giftData.GetGift(timesReceived).amountOfGolf * x;
             goldGiftConfirmLayout.enabled = false;
             goldGiftConfirmLayout.enabled = true;
             goldGiftConfirmLayout.gameObject.SetActive(true);
@@ -88,7 +88,7 @@ public class GiftController : MonoBehaviour
         {
             int idHero = giftData.GetGift(timesReceived).idHero;
             avatarHeroConfirm.sprite = heroData.GetHero(idHero).avatar;
-            lifeTimeHeroConfirm.text = "+" + giftData.GetGift(timesReceived).lifeTime + " DAYS";
+            lifeTimeHeroConfirm.text = "+" + giftData.GetGift(timesReceived).lifeTime * x + " DAYS";
             heroGiftConfirmLayout.enabled = false;
             heroGiftConfirmLayout.enabled = true;
             heroGiftConfirmLayout.gameObject.SetActive(true);
@@ -103,7 +103,7 @@ public class GiftController : MonoBehaviour
             }
             if (canReceive)
                 PlayerPrefs.SetString("HeroGift", giftData.GetGift(timesReceived).idHero + "/"
-                + DateTime.Now.AddDays(giftData.GetGift(timesReceived).lifeTime));
+                + DateTime.Now.AddDays(giftData.GetGift(timesReceived).lifeTime * x));
         }
         PlayerPrefs.SetInt("ReceivedGift", 1);
         claimed.SetActive(true);
@@ -111,5 +111,18 @@ public class GiftController : MonoBehaviour
         if (canIncreaseTimesReceived)
             PlayerPrefs.SetInt("TimesReceived", PlayerPrefs.GetInt("TimesReceived", 0) == 28 ? 0 : PlayerPrefs.GetInt("TimesReceived", 0) + 1);
         canIncreaseTimesReceived = false;
+    }
+    public void WatchAds()
+    {
+        MG_Interface.Current.Reward_Show((bool isSucceed) => { 
+            if (isSucceed)
+            {
+                Claim(2);
+            }
+            else
+            {
+                Claim(1);
+            }
+        });
     }
 }

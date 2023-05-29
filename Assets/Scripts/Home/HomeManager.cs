@@ -8,6 +8,7 @@ public class HomeManager : MonoBehaviour
 {
     [SerializeField] private Text highScore;
     [SerializeField] private GameObject continueButton;
+    [SerializeField] private GameObject removeAdsButton;
     public static HomeManager instance;
     private AudioSource audioSource;
     void Awake()
@@ -16,7 +17,7 @@ public class HomeManager : MonoBehaviour
         instance = this;
         GameData.gold = PlayerPrefs.GetInt("Gold", 0);
         GameData.respawnLeft = PlayerPrefs.GetInt("RespawnLeft", 3);
-
+        removeAdsButton.SetActive(!MG_PlayerPrefs.GetBool("RemoveAds", false));
     }
     void Start()
     {
@@ -37,6 +38,8 @@ public class HomeManager : MonoBehaviour
     }
     public void NewGame()
     {
+        if (PlayerPrefs.GetInt("HighScore", 0) < PlayerPrefs.GetInt("Score", 0))
+            PlayerPrefs.SetInt("HighScore", PlayerPrefs.GetInt("Score", 0));
         PlayerPrefs.DeleteKey("Score");
         PlayerPrefs.DeleteKey("NumberOfBombs");
         PlayerPrefs.DeleteKey("Flame");

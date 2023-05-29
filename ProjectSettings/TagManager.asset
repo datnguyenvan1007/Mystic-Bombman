@@ -11,6 +11,8 @@ TagManager:
   - Explosion
   - Items
   - ExitWay
+  - ItemsHeart
+  - ExitWayHeart
   layers:
   - Default
   - TransparentFX

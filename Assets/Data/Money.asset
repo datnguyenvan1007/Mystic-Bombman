@@ -17,29 +17,29 @@ MonoBehaviour:
     name: FREE
     avatar: {fileID: 21300000, guid: fa3046cb599e3d14797eafb5606a3ea3, type: 3}
     price: 0
-    quantity: 15
+    amount: 15
     bonus: 0
   - id: 1
     name: GOLD I
-    avatar: {fileID: 21300000, guid: baa3345f4d6b0a043b2a535cdd1f14fb, type: 3}
+    avatar: {fileID: 569093382, guid: 64f2aeed24886034aa0c5bfb8893c8eb, type: 3}
     price: 1.99
-    quantity: 1000
+    amount: 300
     bonus: 0
   - id: 2
     name: GOLD II
-    avatar: {fileID: 21300000, guid: 5b1d83173d2100a41a9325110f4bbaff, type: 3}
+    avatar: {fileID: -96650394, guid: 64f2aeed24886034aa0c5bfb8893c8eb, type: 3}
     price: 2.99
-    quantity: 2000
+    amount: 700
     bonus: 0
   - id: 3
     name: GOLD III
-    avatar: {fileID: 21300000, guid: d523e177ff9909e45a67a789f7b7f58f, type: 3}
+    avatar: {fileID: -457053149, guid: 64f2aeed24886034aa0c5bfb8893c8eb, type: 3}
     price: 5.99
-    quantity: 5000
+    amount: 1500
     bonus: 0
   - id: 4
     name: BEST DEAL
-    avatar: {fileID: 0}
+    avatar: {fileID: 21300000, guid: 1cbfc3631b0c50c4bb23cd36a498099a, type: 3}
     price: 7.99
-    quantity: 7000
+    amount: 3000
     bonus: 2000

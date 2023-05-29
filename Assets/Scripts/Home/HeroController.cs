@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,11 +36,11 @@ public class HeroController : MonoBehaviour
     private GameObject oldHighLight = null;
     private Transform oldSelected = null;
     private Transform clickedGameObject = null;
-    private int idOfSeletedObject;
+    private int idOfSelectedObject;
     private GridLayoutGroup grid;
     List<GameObject> instancesHero = new List<GameObject>();
     Vector2 sizeDelta;
-    int[] purchasedHeroes;
+    List<int> purchasedHeroes;
     int idHeroGift = -1;
     int idHeroSkin;
     DateTime receivedDate;
@@ -54,7 +55,7 @@ public class HeroController : MonoBehaviour
     private void LoadComponents()
     {
         idHeroSkin = PlayerPrefs.GetInt("IdHero", 0);
-        purchasedHeroes = Array.ConvertAll(PlayerPrefs.GetString("PurchasedHeroes", "0").Split(','), int.Parse);
+        purchasedHeroes = Array.ConvertAll(PlayerPrefs.GetString("PurchasedHeroes", "0").Split(','), int.Parse).ToList();
         for (int i = 0; i < heroData.Count; i++)
         {
             instancesHero.Add(Instantiate(heroPrefab, objectContainer.transform));
@@ -79,15 +80,11 @@ public class HeroController : MonoBehaviour
             int x = i;
             instancesHero[i].GetComponent<Button>().onClick.AddListener(delegate { ShowInfo(heroData.GetHero(x), instancesHero[x].transform); });
         }
-        for (int i = 0; i < purchasedHeroes.Length; i++)
+        for (int i = 0; i < purchasedHeroes.Count; i++)
         {
             instancesHero[purchasedHeroes[i]].transform.GetChild(4).GetChild(0).gameObject.SetActive(false);
             instancesHero[purchasedHeroes[i]].transform.GetChild(4).GetChild(1).GetComponent<Text>().text = "OWNED";
         }
-        oldSelected = instancesHero[idHeroSkin].transform;
-        instancesHero[idHeroSkin].transform.GetChild(1).GetComponent<Image>().sprite = selectedHero;
-        ShowInfo(heroData.GetHero(idHeroSkin), instancesHero[idHeroSkin].transform);
-        instancesHero[idHeroSkin].transform.GetChild(0).gameObject.SetActive(true);
     }
     private void Awake()
     {
@@ -124,17 +121,20 @@ public class HeroController : MonoBehaviour
             instancesHero[idHeroGift].transform.GetChild(4).GetChild(1).GetComponent<Text>().text =
             daysLeft + " " + (daysLeft == 1 ? "DAY" : "DAYS");
         }
+        oldSelected = instancesHero[idHeroSkin].transform;
+        instancesHero[idHeroSkin].transform.GetChild(1).GetComponent<Image>().sprite = selectedHero;
+        ShowInfo(heroData.GetHero(idHeroSkin), instancesHero[idHeroSkin].transform);
+        instancesHero[idHeroSkin].transform.GetChild(0).gameObject.SetActive(true);
     }
     public void ShowInfo(Hero data, Transform tran)
     {
-        gold.SetActive(true);
         if (oldHighLight != null)
         {
             oldHighLight.SetActive(false);
         }
         tran.GetChild(0).gameObject.SetActive(true);
         oldHighLight = tran.GetChild(0).gameObject;
-        idOfSeletedObject = data.id;
+        idOfSelectedObject = data.id;
         name.text = data.name;
         avatarInfo.sprite = data.avatar;
         if (data.id == idHeroGift)
@@ -147,20 +147,20 @@ public class HeroController : MonoBehaviour
         }
         else
         {
-            if (tran.GetChild(4).GetChild(1).GetComponent<Text>().text == "OWNED")
+            if (purchasedHeroes.Contains(idOfSelectedObject))
             {
                 gold.SetActive(false);
                 numberOfPriceInfo.text = "OWNED";
                 if (data.id == idHeroSkin)
                 {
-                    purchaseButton.gameObject.SetActive(false);
                     selectButton.interactable = false;
+                    purchaseButton.gameObject.SetActive(false);
                     selectButton.gameObject.SetActive(true);
                 }
                 else
                 {
-                    purchaseButton.gameObject.SetActive(false);
                     selectButton.interactable = true;
+                    purchaseButton.gameObject.SetActive(false);
                     selectButton.gameObject.SetActive(true);
                 }
             }
@@ -173,6 +173,7 @@ public class HeroController : MonoBehaviour
                 }
                 else
                 {
+                    gold.SetActive(true);
                     numberOfPriceInfo.text = data.price.ToString();
                 }
                 purchaseButton.gameObject.SetActive(true);
@@ -193,23 +194,23 @@ public class HeroController : MonoBehaviour
     }
     public void Select()
     {
-        PlayerPrefs.SetInt("IdHero", idOfSeletedObject);
+        PlayerPrefs.SetInt("IdHero", idOfSelectedObject);
         ShowSelectedHero();
-        idHeroSkin = idOfSeletedObject;
+        idHeroSkin = idOfSelectedObject;
         oldSelected = clickedGameObject;
     }
     public void Purchase()
     {
-        avatarPurchase.sprite = heroData.GetHero(idOfSeletedObject).avatar;
-        if (heroData.GetHero(idOfSeletedObject).currency == Currency.Gold)
+        avatarPurchase.sprite = heroData.GetHero(idOfSelectedObject).avatar;
+        if (heroData.GetHero(idOfSelectedObject).currency == Currency.Gold)
         {
-            numberOfPricePurchase.text = heroData.GetHero(idOfSeletedObject).price.ToString();
+            numberOfPricePurchase.text = heroData.GetHero(idOfSelectedObject).price.ToString();
             goldPurchase.SetActive(true);
         }
         else
         {
             goldPurchase.SetActive(false);
-            numberOfPricePurchase.text = "$" + heroData.GetHero(idOfSeletedObject).price.ToString();
+            numberOfPricePurchase.text = "$" + heroData.GetHero(idOfSelectedObject).price.ToString();
         }
         Canvas.ForceUpdateCanvases();
         priceHorizontalLayoutPurchase.enabled = false;
@@ -217,20 +218,14 @@ public class HeroController : MonoBehaviour
     }
     public void ConfirmPurchase()
     {
-        if (heroData.GetHero(idOfSeletedObject).currency == Currency.Gold)
+        if (heroData.GetHero(idOfSelectedObject).currency == Currency.Gold)
         {
-            if (GameData.gold >= heroData.GetHero(idOfSeletedObject).price)
+            if (GameData.gold >= heroData.GetHero(idOfSelectedObject).price)
             {
-                if (!PlayerPrefs.HasKey("PurchasedHeroes"))
-                    PlayerPrefs.SetString("PurchasedHeroes", "0");
-                PlayerPrefs.SetString("PurchasedHeroes", PlayerPrefs.GetString("PurchasedHeroes") + "," + idOfSeletedObject);
-                GameData.gold -= (int)heroData.GetHero(idOfSeletedObject).price;
+                GameData.gold -= (int)heroData.GetHero(idOfSelectedObject).price;
                 moneyText.text = GameData.gold.ToString("#,0").Replace(",", ".");
                 PlayerPrefs.SetInt("Gold", GameData.gold);
-                purchaseConfirmation.SetActive(false);
-                successfulPurchase.SetActive(true);
-                clickedGameObject.GetChild(4).GetChild(0).gameObject.SetActive(false);
-                clickedGameObject.GetChild(4).GetChild(1).GetComponent<Text>().text = "OWNED";
+                PurchaseSucceed();
             }
             else
             {
@@ -240,7 +235,28 @@ public class HeroController : MonoBehaviour
         }
         else
         {
-
+            MG_Interface.Current.Purchase_Item(idOfSelectedObject.ToString(), (bool result, bool onIAP, string productId) =>
+            {
+                if (result)
+                {
+                    PurchaseSucceed();
+                }
+            });
         }
+    }
+    public void PurchaseSucceed()
+    {
+        if (!PlayerPrefs.HasKey("PurchasedHeroes"))
+            PlayerPrefs.SetString("PurchasedHeroes", "0");
+        PlayerPrefs.SetString("PurchasedHeroes", PlayerPrefs.GetString("PurchasedHeroes") + "," + idOfSelectedObject);
+        purchasedHeroes.Add(idOfSelectedObject);
+        purchaseConfirmation.SetActive(false);
+        successfulPurchase.SetActive(true);
+        clickedGameObject.GetChild(4).GetChild(0).gameObject.SetActive(false);
+        clickedGameObject.GetChild(4).GetChild(1).GetComponent<Text>().text = "OWNED";
+        gold.SetActive(false);
+        numberOfPriceInfo.text = "OWNED";
+        selectButton.gameObject.SetActive(true);
+        purchaseButton.gameObject.SetActive(false);
     }
 }

@@ -25,13 +25,6 @@ public static class GameData
     public static bool hackBombPass;
     public static bool hackDetonator;
     public static bool hackImmortal;
-    /*public static int bombBooster;
-    public static int flameBooster;
-    public static int detonatorBooster;
-    public static int bombPassBooster;
-    public static int wallPassBooster;
-    public static int flamePassBooster;
-    public static int mysteryBooster;*/
     public static int respawnLeft;
 }
 public class GameManager : MonoBehaviour
@@ -75,14 +68,6 @@ public class GameManager : MonoBehaviour
         GameData.flamePass = PlayerPrefs.GetInt("FlamePass", 0);
         GameData.bombPass = PlayerPrefs.GetInt("BombPass", 0);
         GameData.detonator = PlayerPrefs.GetInt("Detonator", 0);
-        //Booster
-        /*GameData.bombBooster = PlayerPrefs.GetInt("BombBooster", 0);
-        GameData.bombPassBooster = PlayerPrefs.GetInt("BombPassBooster", 0);
-        GameData.detonatorBooster = PlayerPrefs.GetInt("DetonatorBooster", 0);
-        GameData.flameBooster = PlayerPrefs.GetInt("FlameBooster", 0);
-        GameData.flamePassBooster = PlayerPrefs.GetInt("FlamePassBooster", 0);
-        GameData.mysteryBooster = PlayerPrefs.GetInt("MysteryBooster", 0);
-        GameData.wallPassBooster = PlayerPrefs.GetInt("WallPassBooster", 0);*/
     }
 
     void SaveData()
@@ -123,54 +108,6 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.DeleteKey("Left");
         PlayerPrefs.DeleteKey("Detonator");
     }
-    /*public void RemoveAllBooster()
-    {
-        if (GameData.bombBooster != 0)
-        {
-            PoolBomb.instance.RemoveLastBomb();
-            PlayerPrefs.DeleteKey("BombBooster");
-            GameData.bombBooster = 0;
-        }
-        if (GameData.bombPassBooster != 0)
-        {
-            PlayerPrefs.DeleteKey("BombPassBooster");
-            GameData.bombPassBooster = 0;
-        }
-        if (GameData.detonatorBooster != 0)
-        {
-            UIManager.instance.SetActiveButtonDetonator(GameData.detonator);
-            PlayerPrefs.DeleteKey("DetonatorBooster");
-            GameData.detonatorBooster = 0;
-        }
-        if (GameData.flameBooster != 0)
-        {
-            PlayerPrefs.DeleteKey("FlameBooster");
-            GameData.flameBooster = 0;
-        }
-        if (GameData.flamePassBooster != 0)
-        {
-            PlayerPrefs.DeleteKey("FlamePassBooster");
-            GameData.flamePassBooster = 0;
-        }
-        if (GameData.wallPassBooster != 0)
-        {
-            PlayerPrefs.DeleteKey("WallPassBooster");
-            GameData.wallPassBooster = 0;
-        }
-        if (GameData.mysteryBooster != 0)
-        {
-            GameData.mysteryBooster = 0;
-            PlayerPrefs.DeleteKey("MysteryBooster");
-        }
-    }*/
-    /*IEnumerator CancleMysteryBooster()
-    {
-        if (GameData.mysteryBooster == 0)
-            yield break;
-        yield return new WaitForSeconds(100f);
-        GameData.mysteryBooster = 0;
-        PlayerPrefs.DeleteKey("MysteryBooster");
-    }*/
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -252,8 +189,6 @@ public class GameManager : MonoBehaviour
         InitMap();
         UIManager.instance.SetActivePlayingScene(true);
         AudioManager.instance.PlayAudioInGame();
-
-        /*CancleMysteryBooster();*/
 
         IsPlayingLevel = true;
         timeRemain = 200;
@@ -362,9 +297,8 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator WinLevel()
     {
-        UIManager.instance.ShowReward();
-        yield return new WaitForSeconds(2f);
-        /*RemoveAllBooster();*/
+        StartCoroutine(UIManager.instance.ShowReward());
+        yield return new WaitForSeconds(2.5f);
         IsPlayingLevel = false;
         GameData.mystery = 0;
         SaveData();
@@ -375,12 +309,13 @@ public class GameManager : MonoBehaviour
         player.SetActive(false);
         GameData.gold += Reward;
         PlayerPrefs.SetInt("Gold", GameData.gold);
-        StartCoroutine(LoadLevel());
         UIManager.instance.HideReward();
+        if (!MG_PlayerPrefs.GetBool("RemoveAds", false))
+            MG_Interface.Current.Interstitial_Show();
+        StartCoroutine(LoadLevel());
     }
     public void Die()
     {
-        /*RemoveAllBooster();*/
         SaveDataWhenLosing();
         if (GameData.respawnLeft > 0 && PlayerPrefs.GetInt("Left", 2) < 0)
         {
@@ -399,6 +334,8 @@ public class GameManager : MonoBehaviour
             Destroy(EnemiesAndItemOfCurrentLevel);
             GetValueForGameData();
             UIManager.instance.SetGameScore(0);
+            if (!MG_PlayerPrefs.GetBool("RemoveAds", false))
+                MG_Interface.Current.Interstitial_Show();
             StartCoroutine(LoadLevel());
         }
         else
@@ -415,8 +352,4 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    /*void OnApplicationQuit()
-    {
-        RemoveAllBooster();
-    }*/
 }

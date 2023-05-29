@@ -241,7 +241,7 @@ public class Player : MonoBehaviour
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "ExitWay" && PoolEnemy.instance.enemyAlive == 0)
+        if (collision.gameObject.tag == "ExitWayHeart" && PoolEnemy.instance.enemyAlive == 0)
         {
             if (isCompleted)
                 return;
@@ -257,10 +257,10 @@ public class Player : MonoBehaviour
             DevManager.instance.SetInteractableForButtonNextLevel(false);
             StartCoroutine(GameManager.instance.WinLevel());
         }
-        if (collision.gameObject.tag == "Items")
+        if (collision.gameObject.tag == "ItemsHeart")
         {
-            collision.gameObject.SetActive(false);
-            StartCoroutine(GetItems(collision));
+            StartCoroutine(GetItems(collision.transform.parent.gameObject));
+            collision.transform.parent.gameObject.SetActive(false);
             AudioManager.instance.PlayAudioFindTheItem();
         }
     }
@@ -271,9 +271,9 @@ public class Player : MonoBehaviour
             isQuitBomb = true;
         }
     }
-    private IEnumerator GetItems(Collider2D collision)
+    private IEnumerator GetItems(GameObject obj)
     {
-        switch (collision.name)
+        switch (obj.name)
         {
             case "Bombs":
                 PoolBomb.instance.AddBomb();

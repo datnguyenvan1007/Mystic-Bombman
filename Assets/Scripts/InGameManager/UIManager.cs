@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class UIManager : MonoBehaviour
 {
@@ -76,18 +77,6 @@ public class UIManager : MonoBehaviour
             cancleRespawnButton.interactable = true;
         }
     }
-    /*public void OnStartingLevel()
-    {
-        playingScene.SetActive(false);
-        stage.text = "STAGE " + PlayerPrefs.GetInt("Stage", 1);
-        left.text = PlayerPrefs.GetInt("Left", 2).ToString();
-        startingScene.SetActive(true);
-    }
-    public void OnPlayingLevel()
-    {
-        startingScene.SetActive(false);
-        playingScene.SetActive(true);
-    }*/
     public void SetControllerOpacity(float a)
     {
         foreach (var c in controllers)
@@ -254,7 +243,6 @@ public class UIManager : MonoBehaviour
     public void ReturnHome()
     {
         Time.timeScale = 1;
-        /*GameManager.instance.RemoveAllBooster();*/
         PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
         PlayerPrefs.SetInt("Gold", GameData.gold);
         SceneManager.LoadScene(0);
@@ -282,27 +270,48 @@ public class UIManager : MonoBehaviour
     public void RespawnByGold()
     {
         GameData.gold -= GameManager.instance.Fee;
-        GameData.respawnLeft--;
-        GameManager.instance.IsPlayingLevel = false;
-        PoolBrick.instance.DespawnAll();
-        Destroy(GameManager.instance.EnemiesAndItemOfCurrentLevel);
-        PlayerPrefs.SetInt("Left", 0);
-        StartCoroutine(GameManager.instance.LoadLevel());
-        respawnPopup.SetActive(false);
-        PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
+        Respawn();
+    }
+    public void RespawnByWatchAds()
+    {
+        MG_Interface.Current.Reward_Show(Respawn);
+    }
+    public void Respawn(bool isSucceed = true)
+    {
+        if (isSucceed)
+        {
+            GameData.respawnLeft--;
+            GameManager.instance.IsPlayingLevel = false;
+            PoolBrick.instance.DespawnAll();
+            Destroy(GameManager.instance.EnemiesAndItemOfCurrentLevel);
+            PlayerPrefs.SetInt("Left", 0);
+            StartCoroutine(GameManager.instance.LoadLevel());
+            respawnPopup.SetActive(false);
+            PlayerPrefs.SetInt("RespawnLeft", GameData.respawnLeft);
+        }
+        else
+        {
+            GameManager.instance.GoToPreviousLevel();
+        }
     }
     public void CancleRespawn()
     {
         respawnPopup.SetActive(false);
         StartCoroutine(GameManager.instance.GoToPreviousLevel());
     }
-    public void ShowReward()
+    public IEnumerator ShowReward()
     {
         rewardText.text = "+" + GameManager.instance.Reward;
         reward.SetActive(true);
+        reward.transform.DOScale(Vector3.one, 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        reward.transform.DOScale(new Vector3(0.95f, 0.95f, 0.95f), 0.1f);
+        yield return new WaitForSeconds(0.1f);
+        reward.transform.DOScale(Vector3.one, 0.1f);
     }
     public void HideReward()
     {
+        reward.transform.DOScale(Vector3.zero, 0f);
         reward.SetActive(false);
     }
 }
