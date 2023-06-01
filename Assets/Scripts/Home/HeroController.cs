@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +10,8 @@ public class HeroController : MonoBehaviour
 {
     [SerializeField] private Text moneyText;
     [SerializeField] private GameObject purchaseConfirmation;
-    [SerializeField] private GameObject failedPurchase;
+    [SerializeField] private GameObject failedPurchaseByGold;
+    [SerializeField] private GameObject failedPurchaseByCard;
     [SerializeField] private GameObject successfulPurchase;
     [Header("Data")]
     [SerializeField] private HeroData heroData;
@@ -36,6 +38,10 @@ public class HeroController : MonoBehaviour
     private GameObject oldHighLight = null;
     private Transform oldSelected = null;
     private Transform clickedGameObject = null;
+    private Transform container_purchaseConfirmation;
+    private Transform container_failedPurchaseByGold;
+    private Transform container_failedPurchaseByCard;
+    private Transform container_successfulPurchase;
     private int idOfSelectedObject;
     private GridLayoutGroup grid;
     List<GameObject> instancesHero = new List<GameObject>();
@@ -52,7 +58,7 @@ public class HeroController : MonoBehaviour
         int rowCount = Mathf.CeilToInt(heroData.Count / (grid.constraintCount * 1.0f));
         content.sizeDelta += new Vector2(0, rowCount * grid.cellSize.y + (rowCount - 1) * grid.spacing.y + grid.padding.top * 2);
     }
-    private void LoadComponents()
+    private void LoadDataHeroes()
     {
         idHeroSkin = PlayerPrefs.GetInt("IdHero", 0);
         purchasedHeroes = Array.ConvertAll(PlayerPrefs.GetString("PurchasedHeroes", "0").Split(','), int.Parse).ToList();
@@ -89,7 +95,11 @@ public class HeroController : MonoBehaviour
     private void Awake()
     {
         CalculateContentSize();
-        LoadComponents();
+        LoadDataHeroes();
+        container_purchaseConfirmation = purchaseConfirmation.transform.GetChild(1);
+        container_successfulPurchase = successfulPurchase.transform.GetChild(1);
+        container_failedPurchaseByGold = failedPurchaseByGold.transform.GetChild(1);
+        container_failedPurchaseByCard = failedPurchaseByCard.transform.GetChild(1);
     }
     void OnEnable()
     {
@@ -215,6 +225,13 @@ public class HeroController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         priceHorizontalLayoutPurchase.enabled = false;
         priceHorizontalLayoutPurchase.enabled = true;
+        purchaseConfirmation.SetActive(true);
+        container_purchaseConfirmation.DOScale(Vector3.one, 0.3f);
+    }
+    public void Cancel(Transform container)
+    {
+        container.DOScale(Vector3.zero, 0.3f);
+        container.parent.gameObject.SetActive(false);
     }
     public void ConfirmPurchase()
     {
@@ -230,7 +247,9 @@ public class HeroController : MonoBehaviour
             else
             {
                 purchaseConfirmation.SetActive(false);
-                failedPurchase.SetActive(true);
+                container_purchaseConfirmation.DOScale(Vector3.zero, 0.3f);
+                failedPurchaseByGold.SetActive(true);
+                container_failedPurchaseByGold.DOScale(Vector3.one, 0.3f);
             }
         }
         else
@@ -240,6 +259,13 @@ public class HeroController : MonoBehaviour
                 if (result)
                 {
                     PurchaseSucceed();
+                }
+                else
+                {
+                    purchaseConfirmation.SetActive(false);
+                    container_purchaseConfirmation.DOScale(Vector3.zero, 0.3f);
+                    failedPurchaseByCard.SetActive(true);
+                    container_failedPurchaseByCard.DOScale(Vector3.one, 0.3f);
                 }
             });
         }
@@ -256,7 +282,9 @@ public class HeroController : MonoBehaviour
         clickedGameObject.GetChild(4).GetChild(1).GetComponent<Text>().text = "OWNED";
         gold.SetActive(false);
         numberOfPriceInfo.text = "OWNED";
+        selectButton.interactable = true;
         selectButton.gameObject.SetActive(true);
         purchaseButton.gameObject.SetActive(false);
+        container_successfulPurchase.DOScale(Vector3.one, 0.3f);
     }
 }

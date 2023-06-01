@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,13 +15,23 @@ public class GoldShopController : MonoBehaviour
     [SerializeField] private Sprite backInActiveSprite;
     [Header("Comfirmation")]
     [SerializeField] private GameObject purchaseConfirmation;
-    [SerializeField] private Text price;
-    [SerializeField] private Image avatar;
+    [SerializeField] private Text priceConfirmation;
+    [SerializeField] private Text quantityConfirmation;
+    [SerializeField] private Image avatarConfirmation;
+    [SerializeField] private GameObject bonus;
+    [SerializeField] private Text amountBonus;
+    [Header("Notification")]
+    [SerializeField] private GameObject notification;
+    [SerializeField] private Text messageNotification;
+    [SerializeField] private string failedMessage;
+    [SerializeField] private string failedPurchaseByCardMessage;
+    [SerializeField] private string successfulMessage;
+    [Header("BestDeal")]
     [SerializeField] private HorizontalLayoutGroup quantityBestDealLayout;
     [SerializeField] private HorizontalLayoutGroup bonusBestDealLayout;
-    [Header("BestDeal")]
     [SerializeField] private Text numberOfQuantityBestDeal;
     [SerializeField] private Text numberOfBonusBestDeal;
+    [SerializeField] private Text priceOfBestDeal;
     [SerializeField] private Image avatarBestDeal;
     private List<GameObject> instances = new List<GameObject>();
     private GridLayoutGroup grid;
@@ -29,8 +40,12 @@ public class GoldShopController : MonoBehaviour
     private Image backFreeGold = null;
     private int remainingMinutes = 0;
     private float remainingSeconds = 0f;
+    private Transform container_purchaseConfirm;
+    private Transform container_notification;
     private void Awake()
     {
+        container_purchaseConfirm = purchaseConfirmation.transform.GetChild(1);
+        container_notification = notification.transform.GetChild(1);
         grid = objectContainer.GetComponent<GridLayoutGroup>();
         int rowCount = Mathf.CeilToInt(moneyData.Count / (grid.constraintCount * 1.0f));
         content.sizeDelta += new Vector2(0, (rowCount) * (grid.cellSize.y + grid.spacing.y));
@@ -58,9 +73,11 @@ public class GoldShopController : MonoBehaviour
             int x = i;
             instances[i].GetComponent<Button>().onClick.AddListener(delegate { Purchase(moneyData.GetMoney(x).id); });
         }
+        //Best Deal
         numberOfBonusBestDeal.text = "+" + moneyData.GetMoney(moneyData.Count - 1).bonus.ToString();
         numberOfQuantityBestDeal.text = "+" + moneyData.GetMoney(moneyData.Count - 1).amount.ToString();
         avatarBestDeal.sprite = moneyData.GetMoney(moneyData.Count - 1).avatar;
+        priceOfBestDeal.text = "$" + moneyData.GetMoney(moneyData.Count - 1).price.ToString();
         Canvas.ForceUpdateCanvases();
         quantityBestDealLayout.enabled = false;
         quantityBestDealLayout.enabled = true;
@@ -92,7 +109,7 @@ public class GoldShopController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (remainingMinutes == 0 && remainingSeconds < 0.5f)
+        if (remainingMinutes == 0 && remainingSeconds < 0.3f)
             return;
         priceFreeGold.text = remainingMinutes + ":" + Mathf.RoundToInt(remainingSeconds);
         remainingSeconds -= Time.fixedDeltaTime;
@@ -114,12 +131,26 @@ public class GoldShopController : MonoBehaviour
     private void Purchase(int id)
     {
         idOfSelectedObject = id;
-        purchaseConfirmation.SetActive(true);
+        quantityConfirmation.text = "+" + (moneyData.GetMoney(id).amount + moneyData.GetMoney(id).bonus).ToString();
         if (moneyData.GetMoney(id).price == 0f)
-            price.text = "WATCH ADS";
+            priceConfirmation.text = "WATCH ADS";
         else
-            price.text = "$" + moneyData.GetMoney(id).price.ToString();
-        avatar.sprite = moneyData.GetMoney(id).avatar;
+            priceConfirmation.text = "$" + moneyData.GetMoney(id).price.ToString();
+        avatarConfirmation.sprite = moneyData.GetMoney(id).avatar;
+        bonus.SetActive(false);
+        purchaseConfirmation.SetActive(true);
+        container_purchaseConfirm.DOScale(Vector3.one, 0.3f);
+    }
+    public void PurchaseBestDeal()
+    {
+        idOfSelectedObject = moneyData.GetMoney(moneyData.Count - 1).id;
+        quantityConfirmation.text = "+" + moneyData.GetMoney(moneyData.Count - 1).amount.ToString();
+        priceConfirmation.text = "$" + moneyData.GetMoney(idOfSelectedObject).price.ToString();
+        avatarConfirmation.sprite = moneyData.GetMoney(idOfSelectedObject).avatar;
+        amountBonus.text = "+" + moneyData.GetMoney(moneyData.Count - 1).bonus.ToString();
+        bonus.SetActive(true);
+        purchaseConfirmation.SetActive(true);
+        container_purchaseConfirm.DOScale(Vector3.one, 0.3f);
     }
     public void ConfirmPurchase()
     {
@@ -145,20 +176,35 @@ public class GoldShopController : MonoBehaviour
         {
             MG_Interface.Current.Purchase_Item(idOfSelectedObject.ToString(), (bool result, bool onIAP, string productId) =>
             {
+                purchaseConfirmation.SetActive(false);
                 if (result)
                 {
                     GameData.gold += moneyData.GetMoney(idOfSelectedObject).amount + moneyData.GetMoney(idOfSelectedObject).bonus;
                     moneyText.text = GameData.gold.ToString("#,0").Replace(",", ".");
                     PlayerPrefs.SetInt("Gold", GameData.gold);
+                    messageNotification.text = successfulMessage;
+                    notification.SetActive(true);
+                    container_notification.DOScale(Vector3.one, 0.3f);
+                }
+                else
+                {
+                    messageNotification.text = failedPurchaseByCardMessage;
+                    notification.SetActive(true);
+                    container_notification.GetChild(1).DOScale(Vector3.one, 0.3f);
                 }
             });
         }
+        purchaseConfirmation.SetActive(false);
+        container_purchaseConfirm.DOScale(Vector3.zero, 0.3f);
     }
-    public void PurchaseBestDeal()
+    public void CancelPurchase()
     {
-        idOfSelectedObject = moneyData.GetMoney(moneyData.Count - 1).id;
-        price.text = "$" + moneyData.GetMoney(idOfSelectedObject).price.ToString();
-        avatar.sprite = moneyData.GetMoney(idOfSelectedObject).avatar;
-        purchaseConfirmation.SetActive(true);
+        container_purchaseConfirm.DOScale(Vector3.zero, 0.3f);
+        purchaseConfirmation.SetActive(false);
+    }
+    public void Confirm()
+    {
+        notification.SetActive(false);
+        container_notification.DOScale(Vector3.zero, 0.3f);
     }
 }

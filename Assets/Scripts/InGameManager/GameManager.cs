@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public static class GameData
 {
@@ -35,18 +33,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject exitWay;
     [SerializeField] private List<GameObject> enemiesAndItemPrefab;
     public GameObject EnemiesAndItemOfCurrentLevel { get; set; }
-    private GameObject brickOverExitGate;
     private GameObject item;
-    private GameObject brickOverItem;
     private List<Vector2> playerSafePositions;
     private List<Vector2> listOfBrickPositions;
     private List<Vector2> listOfPositionsCanFillBrick;
     private List<Vector2> listOfPositionsCanFill;
     public bool IsPlayingLevel { get; set; } = false;
-    public int Fee { get => 50; }
-    public int Reward { get => 20; }
-    private bool isActivedExitGate = false;
-    private bool isActiveItem = false;
+    public int feeToRespawn;
+    public int reward;
+
     private int time = 200;
     private float timeRemain;
     private int totalBrick = 56;
@@ -69,7 +64,6 @@ public class GameManager : MonoBehaviour
         GameData.bombPass = PlayerPrefs.GetInt("BombPass", 0);
         GameData.detonator = PlayerPrefs.GetInt("Detonator", 0);
     }
-
     void SaveData()
     {
         PlayerPrefs.SetInt("Score", GameData.score);
@@ -307,7 +301,7 @@ public class GameManager : MonoBehaviour
         PoolBrick.instance.DespawnAll();
         Destroy(EnemiesAndItemOfCurrentLevel);
         player.SetActive(false);
-        GameData.gold += Reward;
+        GameData.gold += reward;
         PlayerPrefs.SetInt("Gold", GameData.gold);
         UIManager.instance.HideReward();
         if (!MG_PlayerPrefs.GetBool("RemoveAds", false))
@@ -317,6 +311,7 @@ public class GameManager : MonoBehaviour
     public void Die()
     {
         SaveDataWhenLosing();
+        IsPlayingLevel = false;
         if (GameData.respawnLeft > 0 && PlayerPrefs.GetInt("Left", 2) < 0)
         {
             UIManager.instance.ShowPopupRespawn();
@@ -326,10 +321,10 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator GoToPreviousLevel()
     {
-        yield return new WaitForSeconds(2f);
-        IsPlayingLevel = false;
+        yield return new WaitForSeconds(1f);
         if (PlayerPrefs.GetInt("Left", 2) >= 0)
         {
+            yield return new WaitForSeconds(1f);
             PoolBrick.instance.DespawnAll();
             Destroy(EnemiesAndItemOfCurrentLevel);
             GetValueForGameData();
@@ -345,7 +340,7 @@ public class GameManager : MonoBehaviour
             if (PlayerPrefs.GetInt("HighScore", 0) < PlayerPrefs.GetInt("Score", 0))
                 PlayerPrefs.SetInt("HighScore", PlayerPrefs.GetInt("Score", 0));
             DeleteAllData();
-            Invoke("RedirectHome", 2f);
+            Invoke("RedirectHome", 2.5f);
         }
     }
     void RedirectHome()

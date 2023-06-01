@@ -1,5 +1,8 @@
+using DG.Tweening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +17,9 @@ public class GiftController : MonoBehaviour
     [SerializeField] private Image avatarHeroGift;
     [SerializeField] private Text infoGolfGift;
     [SerializeField] private Text infoHeroGift;
+    [SerializeField] private Animator x2;
     [Header("Comfirmation")]
+    [SerializeField] private GameObject confirm;
     [SerializeField] private HorizontalLayoutGroup goldGiftConfirmLayout;
     [SerializeField] private HorizontalLayoutGroup heroGiftConfirmLayout;
     [SerializeField] private Text quantityGoldConfirm;
@@ -22,8 +27,12 @@ public class GiftController : MonoBehaviour
     [SerializeField] private Text lifeTimeHeroConfirm;
     int timesReceived;
     bool canIncreaseTimesReceived = false;
+    private Transform panel;
+    private Transform panelConfirm;
     private void Awake()
     {
+        panel = transform.GetChild(1);
+        panelConfirm = confirm.transform.GetChild(1);
         if (PlayerPrefs.GetInt("IsOpenedApp", 0) == 1)
         {
             DateTime time;
@@ -37,6 +46,7 @@ public class GiftController : MonoBehaviour
             }
             if (DateTime.Now.Year > time.Year || DateTime.Now.DayOfYear > time.DayOfYear)
             {
+                panel.DOScale(Vector3.one, 0f);
                 PlayerPrefs.SetInt("ReceivedGift", 0);
                 claimed.SetActive(false);
                 PlayerPrefs.SetString("FirstOpeningInDay", DateTime.Now.ToString());
@@ -46,6 +56,7 @@ public class GiftController : MonoBehaviour
             {
                 if (PlayerPrefs.GetInt("ReceivedGift", 0) == 1)
                 {
+                    x2.enabled = false;
                     claimed.SetActive(true);
                     notification.SetActive(false);
                 }
@@ -57,9 +68,8 @@ public class GiftController : MonoBehaviour
             gameObject.SetActive(false);
             PlayerPrefs.SetInt("IsOpenedApp", 1);
         }
-
         timesReceived = PlayerPrefs.GetInt("TimesReceived", 0);
-        if (timesReceived != 27)
+        if (timesReceived != 27 && timesReceived != 13)
         {
             timesReceived %= 7;
             goldGift.SetActive(true);
@@ -67,10 +77,22 @@ public class GiftController : MonoBehaviour
         }
         else
         {
+            if (timesReceived == 13)
+                timesReceived = 7;
+            else
+                timesReceived = 8;
             heroGift.SetActive(true);
             infoHeroGift.text = "+" + giftData.GetGift(timesReceived).lifeTime + " DAYS";
             avatarHeroGift.sprite = heroData.GetHero(giftData.GetGift(timesReceived).idHero).avatar;
         }
+    }
+    private void OnEnable()
+    {
+        panel.DOScale(Vector3.one, 0.3f);
+    }
+    private void OnDisable()
+    {
+        panel.DOScale(Vector3.zero, 0.3f);
     }
     public void Claim(int x = 1)
     {
@@ -105,7 +127,11 @@ public class GiftController : MonoBehaviour
                 PlayerPrefs.SetString("HeroGift", giftData.GetGift(timesReceived).idHero + "/"
                 + DateTime.Now.AddDays(giftData.GetGift(timesReceived).lifeTime * x));
         }
+        panel.gameObject.SetActive(false);
+        confirm.SetActive(true);
+        panelConfirm.DOScale(Vector3.one, 0.3f);
         PlayerPrefs.SetInt("ReceivedGift", 1);
+        x2.enabled = false;
         claimed.SetActive(true);
         notification.SetActive(false);
         if (canIncreaseTimesReceived)
@@ -119,10 +145,13 @@ public class GiftController : MonoBehaviour
             {
                 Claim(2);
             }
-            else
-            {
-                Claim(1);
-            }
         });
+    }
+    public void Confirm()
+    {
+        confirm.SetActive(false);
+        panelConfirm.DOScale(Vector3.zero, 0.3f);
+        gameObject.SetActive(false);
+        panel.gameObject.SetActive(true);
     }
 }

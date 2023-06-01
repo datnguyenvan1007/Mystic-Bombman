@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class HomeManager : MonoBehaviour
 {
-    [SerializeField] private Text highScore;
     [SerializeField] private GameObject continueButton;
     [SerializeField] private GameObject removeAdsButton;
     public static HomeManager instance;
     private AudioSource audioSource;
     void Awake()
     {
+        Application.targetFrameRate = 60;
         audioSource = GetComponent<AudioSource>();
         instance = this;
         GameData.gold = PlayerPrefs.GetInt("Gold", 0);
@@ -25,7 +22,7 @@ public class HomeManager : MonoBehaviour
         {
             continueButton.SetActive(false);
         }
-        highScore.text = PlayerPrefs.GetInt("HighScore", 0).ToString("#,0").Replace(",", ".");
+        
         if (PlayerPrefs.GetInt("Sound", 0) == 0)
         {
             Mute();

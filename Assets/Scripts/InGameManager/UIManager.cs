@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using UnityEngine.InputSystem.LowLevel;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,32 +12,44 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text score;
     [SerializeField] private Text left;
     [SerializeField] private Text stage;
+
     [SerializeField] private GameObject startingScene;
     [SerializeField] private GameObject playingScene;
     [SerializeField] private GameObject winScene;
     [SerializeField] private GameObject loseScene;
+    [SerializeField] private Transform pause;
+    [SerializeField] private Transform prompt;
+
     [SerializeField] private GameObject joystickControl;
     [SerializeField] private GameObject dpadControl;
     [SerializeField] private GameObject buttonExplode;
+
     [SerializeField] private RectTransform uiControlMovement;
     [SerializeField] private RectTransform uiControlBomb;
     [SerializeField] private List<Image> controllers;
+
     [SerializeField] private GameObject respawnPopup;
     [SerializeField] private Button respawnByGoldButton;
     [SerializeField] private Button respawnByWatchAdsButton;
     [SerializeField] private Button cancleRespawnButton;
+
     [SerializeField] private Text controlsText;
     [SerializeField] private Text flipControlText;
     [SerializeField] private Text soundText;
+
     [SerializeField] private Text respawnFee;
     [SerializeField] private Text respawnLeftText;
     [SerializeField] private Text contentCancleRespawn;
     [SerializeField] private GameObject reward;
     [SerializeField] private Text rewardText;
+
     [SerializeField] private GameObject pressUp;
     [SerializeField] private GameObject pressDown;
     [SerializeField] private GameObject pressLeft;
     [SerializeField] private GameObject pressRight;
+
+    [SerializeField] private GameObject devButton;
+
     private List<Vector2> controllersPosition = new List<Vector2>();
     private float timer = 0f;
     private Vector2 oldMove = Vector2.zero;
@@ -44,11 +57,12 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         UIManager.instance = this;
+        devButton.SetActive(MG_Interface.Current.devMode);
     }
     private void Start()
     {
-        controllersPosition.Add(uiControlMovement.anchoredPosition);
-        controllersPosition.Add(uiControlBomb.anchoredPosition);
+        controllersPosition.Add(uiControlMovement.localPosition);
+        controllersPosition.Add(uiControlBomb.localPosition);
         SetControllerOpacity(PlayerPrefs.GetFloat("ControllerOpacity", 45) / 100);
         SetControllerType(PlayerPrefs.GetInt("ControllerType", 2));
         SetActiveButtonDetonator(GameData.detonator);
@@ -103,14 +117,14 @@ public class UIManager : MonoBehaviour
     {
         if (type == 1)
         {
-            uiControlMovement.anchoredPosition = controllersPosition[1];
-            uiControlBomb.anchoredPosition = controllersPosition[0];
+            uiControlMovement.localPosition = controllersPosition[1];
+            uiControlBomb.localPosition = controllersPosition[0];
             flipControlText.text = "ON";
         }
         else
         {
-            uiControlMovement.anchoredPosition = controllersPosition[0];
-            uiControlBomb.anchoredPosition = controllersPosition[1];
+            uiControlMovement.localPosition = controllersPosition[0];
+            uiControlBomb.localPosition = controllersPosition[1];
             flipControlText.text = "OFF";
         }
     }
@@ -160,7 +174,10 @@ public class UIManager : MonoBehaviour
     }
     public void Pause()
     {
+        pause.parent.gameObject.SetActive(true);
+        AudioManager.instance.Mute();
         Time.timeScale = 0;
+        pause.DOScale(Vector3.one, 0.3f).SetUpdate(true);
     }
     public void SelectControllerType()
     {
@@ -185,15 +202,15 @@ public class UIManager : MonoBehaviour
         {
             PlayerPrefs.SetInt("FlipControls", 0);
             flipControlText.text = "OFF";
-            uiControlMovement.anchoredPosition = controllersPosition[0];
-            uiControlBomb.anchoredPosition = controllersPosition[1];
+            uiControlMovement.localPosition = controllersPosition[0];
+            uiControlBomb.localPosition = controllersPosition[1];
         }
         else
         {
             PlayerPrefs.SetInt("FlipControls", 1);
             flipControlText.text = "ON";
-            uiControlMovement.anchoredPosition = controllersPosition[1];
-            uiControlBomb.anchoredPosition = controllersPosition[0];
+            uiControlMovement.localPosition = controllersPosition[1];
+            uiControlBomb.localPosition = controllersPosition[0];
         }
     }
     public void SelectSound()
@@ -239,6 +256,15 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1;
         if (PlayerPrefs.GetInt("Sound", 1) == 1)
             AudioManager.instance.UnMute();
+        pause.parent.gameObject.SetActive(false);
+        pause.DOScale(Vector3.zero, 0.3f);
+    }
+    public void MainMenu()
+    {
+        pause.gameObject.SetActive(false);
+        /*pause.DOScale(Vector3.zero, 0.3f).SetUpdate(true);*/
+        prompt.gameObject.SetActive(true);
+        /*prompt.DOScale(Vector3.one, 0.3f).SetUpdate(true);*/
     }
     public void ReturnHome()
     {
@@ -247,15 +273,22 @@ public class UIManager : MonoBehaviour
         PlayerPrefs.SetInt("Gold", GameData.gold);
         SceneManager.LoadScene(0);
     }
+    public void CancelReturn()
+    {
+        prompt.gameObject.SetActive(false);
+        /*prompt.DOScale(Vector3.zero, 0.3f).SetUpdate(true);*/
+        pause.gameObject.SetActive(true);
+        /*pause.DOScale(Vector3.one, 0.3f).SetUpdate(true);*/
+    }
     public bool GetActiveJoystick()
     {
         return joystickControl.activeSelf;
     }
     public void ShowPopupRespawn()
     {
-        respawnFee.text = GameManager.instance.Fee.ToString();
+        respawnFee.text = GameManager.instance.feeToRespawn.ToString();
         respawnLeftText.text = "(x" + GameData.respawnLeft + ")";
-        if (GameData.gold < GameManager.instance.Fee)
+        if (GameData.gold < GameManager.instance.feeToRespawn)
         {
             respawnByGoldButton.interactable = false;
         }
@@ -269,7 +302,7 @@ public class UIManager : MonoBehaviour
     }
     public void RespawnByGold()
     {
-        GameData.gold -= GameManager.instance.Fee;
+        GameData.gold -= GameManager.instance.feeToRespawn;
         Respawn();
     }
     public void RespawnByWatchAds()
@@ -301,10 +334,10 @@ public class UIManager : MonoBehaviour
     }
     public IEnumerator ShowReward()
     {
-        rewardText.text = "+" + GameManager.instance.Reward;
+        rewardText.text = "+" + GameManager.instance.reward;
         reward.SetActive(true);
-        reward.transform.DOScale(Vector3.one, 0.5f);
-        yield return new WaitForSeconds(0.5f);
+        reward.transform.DOScale(Vector3.one, 0.3f);
+        yield return new WaitForSeconds(0.3f);
         reward.transform.DOScale(new Vector3(0.95f, 0.95f, 0.95f), 0.1f);
         yield return new WaitForSeconds(0.1f);
         reward.transform.DOScale(Vector3.one, 0.1f);

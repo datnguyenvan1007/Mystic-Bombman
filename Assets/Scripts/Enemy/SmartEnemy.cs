@@ -14,7 +14,7 @@ public class SmartEnemy : Enemy
 
     protected override void FixedUpdate()
     {
-        if (isDead)
+        if (isDead || !GameManager.instance.IsPlayingLevel)
             return;
         if (!isMoving || pathToPlayer.Count == 0)
         {

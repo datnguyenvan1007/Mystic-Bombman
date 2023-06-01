@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,11 @@ public class HomeSettings : MonoBehaviour
     [SerializeField] private Text flipControlText;
     [SerializeField] private Text soundText;
     [SerializeField] private Text percentText;
+    private Transform panel;
+    private void Awake()
+    {
+        panel = transform.GetChild(1);
+    }
     void Start()
     {
         controllerOpacitySlider.value = PlayerPrefs.GetFloat("ControllerOpacity", 45f);
@@ -38,6 +44,14 @@ public class HomeSettings : MonoBehaviour
         {
             soundText.text = "OFF";
         }
+    }
+    private void OnEnable()
+    {
+        panel.DOScale(Vector3.one, 0.3f);
+    }
+    private void OnDisable()
+    {
+        panel.DOScale(Vector3.zero, 0.3f);
     }
     public void ChangeControllerOpacity()
     {

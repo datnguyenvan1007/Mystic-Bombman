@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,9 +14,21 @@ public class RemoveAds : MonoBehaviour
     [SerializeField] private string failedMessage;
     [SerializeField] private Text messageConfirmText;
     [SerializeField] private Text priceText;
-    private void Start()
+    private Transform panel;
+    private Transform container_confirmPanel;
+    private void Awake()
     {
+        panel = transform.GetChild(1);
+        container_confirmPanel = confirmPanel.transform.GetChild(1);
         priceText.text = "$" + priceToRemoveAds.ToString();
+    }
+    private void OnEnable()
+    {
+        panel.DOScale(Vector3.one, 0.3f);
+    }
+    private void OnDisable()
+    {
+        panel.DOScale(Vector3.zero, 0.3f);
     }
     public void Purchase()
     {
@@ -33,6 +46,12 @@ public class RemoveAds : MonoBehaviour
             }
             purchasePanel.SetActive(false);
             confirmPanel.SetActive(true);
+            container_confirmPanel.DOScale(Vector3.one, 0.3f);
         });
+    }
+    public void Confirm()
+    {
+        confirmPanel.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

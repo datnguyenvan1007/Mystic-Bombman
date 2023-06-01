@@ -15,40 +15,45 @@ MonoBehaviour:
   dailyGifts:
   - id: 0
     isGold: 1
-    amountOfGolf: 50
+    amountOfGolf: 20
     idHero: 0
     lifeTime: 0
   - id: 1
     isGold: 1
-    amountOfGolf: 100
+    amountOfGolf: 25
     idHero: 0
     lifeTime: 0
   - id: 2
     isGold: 1
-    amountOfGolf: 150
+    amountOfGolf: 35
     idHero: 0
     lifeTime: 0
   - id: 3
     isGold: 1
-    amountOfGolf: 170
+    amountOfGolf: 50
     idHero: 0
     lifeTime: 0
   - id: 4
     isGold: 1
-    amountOfGolf: 200
+    amountOfGolf: 75
     idHero: 0
     lifeTime: 0
   - id: 5
     isGold: 1
-    amountOfGolf: 230
+    amountOfGolf: 100
     idHero: 0
     lifeTime: 0
   - id: 6
     isGold: 1
-    amountOfGolf: 250
+    amountOfGolf: 150
     idHero: 0
     lifeTime: 0
   - id: 7
+    isGold: 0
+    amountOfGolf: 0
+    idHero: 4
+    lifeTime: 7
+  - id: 8
     isGold: 0
     amountOfGolf: 0
     idHero: 5

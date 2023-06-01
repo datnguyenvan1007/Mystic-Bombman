@@ -32,6 +32,8 @@ public class Enemy : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        if (isDead || !GameManager.instance.IsPlayingLevel)
+            return;
         Move();
     }
     protected Vector2 GetNextPosition()
@@ -89,8 +91,6 @@ public class Enemy : MonoBehaviour
     }
     protected void Move()
     {
-        if (isDead)
-            return;
         if (nextPosition == (Vector2)transform.position)
         {
             nextPosition = GetNextPosition();
